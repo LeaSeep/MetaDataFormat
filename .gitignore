@@ -1,3 +1,7 @@
 Input/ExcelBased/old/
 .Rproj.user
-Input/ExcelBased/.*.xlsx
+Input/ExcelBased/*.xlsx
+*.xlsx
+Margarita/
+NCBI_MetadatenFormat/
+
