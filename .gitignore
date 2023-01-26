@@ -1,7 +1,12 @@
-Input/ExcelBased/old/
-.Rproj.user
-Input/ExcelBased/*.xlsx
+Input/old_versions/
+DataModel/
+Input/collab_info/
+Input/old_versions
 *.xlsx
 Margarita/
 NCBI_MetadatenFormat/
+Output/
+training/.Rproj.user/
+training/.RData
+training/.Rhistory
 
