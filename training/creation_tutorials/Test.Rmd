@@ -36,11 +36,7 @@ You will first be introduced into the example dataset. You probably will need to
 
 Imagine the following experimental SetUp:
 
-<center>
-
-![Experimental SetUp](Pics/Setup_1.png){width="709"}
-
-</center>
+<center>![Experimental SetUp](Pics/Setup_1.png){width="709"}</center>
 
 Additional Information:
 
@@ -92,19 +88,11 @@ Given the information from [Example Data - bulk transcriptomics](#example-data--
 
 1.  Press 'generate' to generate the total groups. Compare your result with the snippet below. It should show be the same!
 
-    <center>
-
-    ![final groups for the given experiment](Pics/Section2_1.png)
-
-    </center>
+    <center>![final groups for the given experiment](Pics/Section2_1.png)</center>
 
 2.  Now look at the second snippet. Change the first section accordingly to achieve the same result shown below:
 
-    <center>
-
-    ![Advanced experimental Setup](Pics/Section2_2.png)
-
-    </center>
+    <center>![Advanced experimental Setup](Pics/Section2_2.png)</center>
 
 3.  Decide whether you want to use the simple setting (1.) then change Section 1 again or move on with the advanced setting. Fill in the number of replicates (duplicates per group)
 
@@ -172,7 +160,7 @@ Export the Metadata-Sheet.
 
 ## Advanced usability
 
-We have no worked through the most simplest case. The sheet is capable to capture more complicated set-ups. Some of those advanced settings are not introduced to you.
+We have now worked through the most simplest case. The sheet is capable to capture more complicated set-ups. Some of those advanced settings are now introduced to you.
 
 ### Adding timeline to treatment
 
@@ -200,12 +188,26 @@ You may face the situation that you have isolated 2 different celltypes from the
 2.  Fill in the new expanded section.
 3.  Revise the Preparation Section. Can you pin point the cell which needs to be changed when you add subsamples or subsubsamples?
 
+### Discretizing between different types of replicates
+
+You may not only have done replicates on an experimental level but also have replicates on the level of measurements. For example, you have treated five mice per treatment. To be able to estimate also the measurements variability you split up the taken probe into 3 batches. Sometimes people refer to this as biological/ and or technical replicates, however respective defintion can vary.
+
+This workflow can be recorded relying on the subsample and subsubsample sections, which will be also capable to record the underlying hierarchy of these probes, which can be important for later analysis.
+An easy example can be seen here:
+
+![](Pics/measurementRepl.png)
+
+1. **Before** generating the new Sections (aka clicking on generate) - How many total samples would you have in the outlined scenario?
+2. Examine the new generated Sub-Sample Section. How is the information linked between the experimental replicate (Sample-Section) and the measurement replicates (Sub-Sample Section)?
+3. What does change with respect to, where to put the path to the data files?
+
+
 ### Keyword 'CHANGES'
 
 Whenever you select from the DropDown the option "CHANGES" the corresponding key including the DropDown will be propagated to the Sample-Section. Now you can specify the requested value for the respective key now for each individual sample.
 
 1.  Think about similarities and differences between a covariate and the use of the keyword CHANGES
 2.  Go to the Measurement Section and select as measurement type flow_cytometry. Mock up the other requested keys except 'markers'. Here choose CHANGES
-3.  **Before** clickinggenerate think about, where you expect the key 'markers' to pop up again.
+3.  **Before** clicking generate think about, where you expect the key 'markers' to pop up again.
 4.  Click generate and check your expectation. Try to select several markers.
 5.  Can you think of other keys within the Sheet that would need the keyword CHANGES? Check if you can find it. If not please report the keys you would like to see the keyword CHANGES.
