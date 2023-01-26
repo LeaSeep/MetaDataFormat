@@ -6,7 +6,7 @@ Input/old_versions
 Margarita/
 NCBI_MetadatenFormat/
 Output/
-training/.Rproj.user/
-training/.RData
-training/.Rhistory
-
+training/creation_tutorials/.Rproj.user/
+training/creation_tutorials/.RData
+training/creation_tutorials/.Rhistory
+JSON_SCHEMA_help.txt
