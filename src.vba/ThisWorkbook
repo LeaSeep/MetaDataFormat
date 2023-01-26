@@ -1,9 +1,0 @@
-Private Sub Workbook_Open()
- With Application
-    .Left = 1
-   End With
-   
-   Application.DisplayFullScreen = True
-   Application.WindowState = xlMaximized
-
-End Sub
