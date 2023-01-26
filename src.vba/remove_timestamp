@@ -1,0 +1,26 @@
+' remove time Point
+Sub removeTimePoint()
+
+' remove
+  Dim InputSheet As Object
+  Set InputSheet = ActiveWorkbook.Worksheets("Input")
+    
+  Dim RowStart2Search As Long
+  RowStart2Search = InputSheet.Columns(1).Find("Preparation", SearchOrder:=xlByRows, LookIn:=xlValues, SearchDirection:=xlPrevious).Row
+
+   Dim CommentRow As Long
+  CommentRow = InputSheet.Cells.Find("comment", SearchOrder:=xlByRows, LookAt:=xlWhole, MatchCase:=True, LookIn:=xlValues, After:=Cells(RowStart2Search, 1), SearchDirection:=xlPrevious).Row
+   
+   If InputSheet.Cells.Range("B" & (CommentRow - 3)).Value = "Start_1" Then
+   ' remove nothing as this would remove all
+   Else
+    InputSheet.Cells.Range("B" & (CommentRow - 3) & ":B" & CommentRow).EntireRow.Select
+    Selection.Delete
+   End If
+   
+   'MsgBox CommentRow
+   ' add after comment row insert 4 rows
+   
+  
+    
+End Sub

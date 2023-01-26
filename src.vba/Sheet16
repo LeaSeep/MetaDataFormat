@@ -1,0 +1,119 @@
+Private Sub Worksheet_Change(ByVal Target As Range)
+
+On Error GoTo ErrWorksheet_Change
+
+currentPositionCell = ActiveCell.Address
+
+Application.EnableEvents = False
+
+    Dim Sheet As Object
+    Set Sheet = ActiveWorkbook.Worksheets("Input")
+' To allow Group Specific Validation
+    If Target.Address = "$C$1" Then
+        
+        If Sheet.Cells(1, 3) = "Yes" Then
+        'Call add validation with specific Input Sheet
+            Call add_validation(True)
+        Else
+            'Call add validation with general Input Sheet
+            Call add_validation(False)
+        End If
+    End If
+    
+    Dim match_3 As Range
+    Set match_3 = Sheet.Range("B:B").Find(What:="type_of_time_dependence", LookIn:=xlValues, LookAt:=xlPart, MatchCase:=True, SearchDirection:=xlNext)
+    If Not match_3 Is Nothing Then
+        If Target.Address = match_3.Offset(0, 1).Address Then
+    
+        Dim reMatch As Range
+        Dim LastRow As Long
+        LastRow = Sheet.Cells.Find("Sample-section", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+
+        section2LookAt = match_3.Offset(0, 1).Value
+        Set reMatch = Sheet.Range("A:A").Find(What:=section2LookAt, LookIn:=xlValues, LookAt:=xlWhole, MatchCase:=True, SearchDirection:=xlPrevious)
+        No_groups = reMatch.Offset(2, 2).Value
+        Set copyRange = reMatch.Offset(3, 1)
+            
+        ColumnLetter_start = Split(Cells(1, match_3.Cells.Column + 1).Address, "$")(1)
+        ColumnLetter_end = Split(Cells(1, match_3.Cells.Column + No_groups).Address, "$")(1)
+            ' put entire cols to no color
+        Sheet.Range(ColumnLetter_start & match_3.Cells.Row + 1 & ":" & Split(Cells(1, match_3.Cells.Column + 100).Address, "$")(1) & match_3.Cells.Row + 1).Select
+        Selection.Interior.ColorIndex = xlNone
+        Selection.Delete
+            ' put in no color put copy from above
+           
+        Sheet.Range(ColumnLetter_start & (match_3.Cells.Row + 1) & ":" & ColumnLetter_end & (match_3.Cells.Row + 1)).Select
+        Selection.Value = Sheet.Range(copyRange.Offset(0, 1).Address & ":" & copyRange.Offset(0, No_groups).Address).Value
+        
+        Else
+            Call add_requested_col_colors
+        End If
+    
+    End If
+
+    
+
+    
+    Dim ExperimentalSystem As Long
+    ExperimentalSystem = Sheet.Range("A:A").Find("Experimental System", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+
+    If Target.Address = Sheet.Cells(ExperimentalSystem + 1, 2).Address Then
+        Call Insert_dep_Fields_exp
+    End If
+    
+    Dim Measurement As Long
+    Measurement = Sheet.Range("A:A").Find("Measurement", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+
+    If Target.Address = Sheet.Cells(Measurement + 1, 2).Address Then
+        Call Insert_dep_Fields_meas
+    End If
+
+
+    Call Hide_unnecassary
+    Call addValidationCovars
+    Call add_requested_col_colors
+    Call addComment
+    Call placeButtonsCorrectly
+
+ 
+    Sheet.Cells.Borders.LineStyle = xlLineStyleNone
+ 
+   Dim borders_a As Long
+    borders_a = Sheet.Range("A:A").Find("total_groups", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+    
+    
+    With Sheet.Rows(borders_a).Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    
+    With Sheet.Rows(borders_a).Borders(xlEdgeTop)
+        .LineStyle = xlDouble
+        .Weight = xlThick
+    End With
+    
+    Dim borders_b As Long
+    borders_b = Sheet.Range("A:A").Find("Sample-section", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+ 
+ 
+     With Sheet.Rows(borders_b).Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .Weight = xlThin
+    End With
+    
+    With Sheet.Rows(borders_b).Borders(xlEdgeTop)
+        .LineStyle = xlDouble
+        .Weight = xlThick
+    End With
+    Sheet.Range(currentPositionCell).Select
+    
+    Application.EnableEvents = True
+    Exit Sub
+    
+ErrWorksheet_Change:
+    Application.EnableEvents = True
+    MsgBox "There was a general error -> need to contact Lea Here?"
+        
+End Sub
+
+

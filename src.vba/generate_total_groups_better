@@ -1,0 +1,271 @@
+Sub generate_total_groups()
+'
+' Aim to generate the total groups (this would be used then for the sample table
+' should be allowed to delete but not to add (maybe "missing" option)
+'
+' go through each line
+' if bold & italic and next to it Yes
+' get specified groups (look how toget the colored line
+' save this values
+' count the # of Yes
+
+' if #Yes <=1
+'  => insert the one value you have saved
+'if #Yes >1
+' make all possible combinations from the value arraysyou got (put x inbetween)
+'
+
+ On Error GoTo Err
+
+Application.EnableEvents = False
+
+Dim Sheet As Object
+Dim startRow As Long
+Dim endRow As Long
+Dim NoOfYes As Long
+Dim counterGroups As Long
+Dim finalGroups As Long
+Dim col As New Collection
+
+Dim cellRange As Range
+Dim i As Integer
+Dim j As Integer
+
+Dim Groups2Combine As Variant
+Dim RangesToCombine As Variant
+ReDim RangesToCombine(1 To 5) ' number of possible combinations to make
+
+Set Sheet = ActiveWorkbook.Worksheets("Input")
+
+' UnHide everything till SampleSection
+unhideFrom = Sheet.Range("A:A").Find("total_groups", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+unhideTill = Sheet.Range("A:A").Find("Sample-Section", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+
+'Sheet.Range("A" & unhideFrom & ":A" & unhideTill).EntireRow.Hidden = False
+
+
+
+startRow = Sheet.Cells.Find("Comparison groups", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+endRow = Sheet.Cells.Find("covariates / constants", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+NoOfYes = 0
+counterGroups = 0
+
+
+For i = startRow + 1 To endRow - 1
+    ' if Yes
+    If Sheet.Cells(i, 1).Font.Bold And Sheet.Cells(i, 1).Font.Italic And Not IsEmpty(Range("B" & i).Value) Then
+        If Range("B" & i).Value = "Yes" Then
+            NoOfYes = NoOfYes + 1
+            groupsRow = Sheet.Cells.Find("Specification of groups (one per column)", SearchOrder:=xlByRows, After:=Sheet.Cells(i, 2), SearchDirection:=xlNext).Row
+            groupsNo = Sheet.Cells.Find("How many groups?", SearchOrder:=xlByRows, After:=Sheet.Cells(i, 2), SearchDirection:=xlNext).Offset(0, 1).Value
+            ' test here to break out if groupsNo==1
+            If groupsNo = 1 Then
+                NoOfYes = NoOfYes - 1
+                GoTo SingleGroup
+            End If
+            
+            ColumnLetter = Split(Cells(1, (groupsNo + 2)).Address, "$")(1)
+            Set cellRange = Sheet.Range("C" & groupsRow, ColumnLetter & groupsRow)
+            'Set cellRange = Range("A2:A5")
+            Dim lengthBefore As Long
+            If IsEmpty(Groups2Combine) Then
+                ReDim Groups2Combine(1 To groupsNo)
+                lengthBefore = 0
+            Else
+                'ReDim Preserve Groups2Combine(1 To (groupsNo + ArrayLen(Groups2Combine)))
+                lengthBefore = ArrayLen(Groups2Combine)
+            End If
+
+            
+            For j = 1 To groupsNo
+                ReDim Preserve Groups2Combine(1 To (lengthBefore + j))
+                Groups2Combine((j + lengthBefore)) = cellRange.Cells(1, j).Value
+            Next j
+            
+            'col.Add Groups2Combine
+            RangesToCombine(NoOfYes) = cellRange.Address
+
+        End If
+    End If
+SingleGroup:
+    
+Next i
+
+    ' Set the groups
+    finalGroups = Sheet.Cells.Find("total_groups", SearchOrder:=xlByRows, After:=Sheet.Cells(i, 2), SearchDirection:=xlNext).Row
+    Sheet.Rows(finalGroups + 1).EntireRow.ClearContents
+    Sheet.Rows(finalGroups + 2).EntireRow.ClearContents
+
+    Sheet.Range("A" & (finalGroups + 1)) = "final_groups"
+    Sheet.Range("A" & (finalGroups + 2)) = "How many replicates per group?"
+    
+    
+    ' Check if the number of groups is =1 then substract the number of yes to avoind number
+    
+    
+    
+    If NoOfYes > 1 Then
+        'We need combinations hence cartesian product
+        Dim startRange As Range
+        'ColumnLetter = Split(Cells(1, (ArrayLen(Groups2Combine) + 1)).Address, "$")(1)
+        Set startRange = Sheet.Range("B" & (finalGroups))
+
+        array1 = Application.Transpose(Sheet.Range(RangesToCombine(1)))
+        array2 = Application.Transpose(Sheet.Range(RangesToCombine(2)))
+        
+    
+        'really ugly needs a brush up!!
+        'MsgBox array1.Value
+        'MsgBox ArrayLen(array1)
+        'MsgBox array1
+        'MsgBox array2
+        'startRange.Select
+        StartCell = startRange.Address
+        Z = 0
+        If NoOfYes = 2 Then
+             Z = 0
+            For a = 1 To ArrayLen(array1)
+                For b = 1 To UBound(array2)
+                    If ArrayLen(array1) = 1 Then
+                        combi = (array1 & " x " & array2(b, 1))
+                    Else
+                        combi = (array1(a, 1) & " x " & array2(b, 1))
+                    End If
+                    Sheet.Range(StartCell).Offset(1, Z).Value = combi
+                     Z = Z + 1
+                Next
+            Next
+        End If
+        If NoOfYes = 3 Then
+             Z = 0
+             array3 = Application.Transpose(Sheet.Range(RangesToCombine(3)))
+            For a = 1 To ArrayLen(array1)
+                For b = 1 To UBound(array2)
+                    For C = 1 To UBound(array3)
+                                combi = (array1(a, 1) & " x " & array2(b, 1) & " x " & array3(C, 1))
+                                Sheet.Range(StartCell).Offset(1, Z).Value = combi
+                                Z = Z + 1
+                    Next
+                Next
+            Next
+        End If
+        
+        If NoOfYes = 4 Then
+             Z = 0
+             array3 = Application.Transpose(Sheet.Range(RangesToCombine(3)))
+             array4 = Application.Transpose(Sheet.Range(RangesToCombine(4)))
+            For a = 1 To ArrayLen(array1)
+                For b = 1 To UBound(array2)
+                    For C = 1 To UBound(array3)
+                        For D = 1 To UBound(array4)
+                                combi = (array1(a, 1) & " x " & array2(b, 1) & " x " & array3(C, 1) & " x " & array4(D, 1))
+                                Sheet.Range(StartCell).Offset(1, Z).Value = combi
+                                Z = Z + 1
+                        Next
+                    Next
+                Next
+            Next
+        End If
+        
+        If NoOfYes = 5 Then
+             Z = 0
+             array3 = Application.Transpose(Sheet.Range(RangesToCombine(3)))
+             array4 = Application.Transpose(Sheet.Range(RangesToCombine(4)))
+             array5 = Application.Transpose(Sheet.Range(RangesToCombine(5)))
+            For a = 1 To ArrayLen(array1)
+                For b = 1 To UBound(array2)
+                    For C = 1 To UBound(array3)
+                        For D = 1 To UBound(array4)
+                            For e = 1 To UBound(array5)
+                                combi = (array1(a, 1) & " x " & array2(b, 1) & " x " & array3(C, 1) & " x " & array4(D, 1) & " x " & array5(e, 1))
+                                Sheet.Range(StartCell).Offset(1, Z).Value = combi
+                                Z = Z + 1
+                            Next
+                        Next
+                    Next
+                Next
+            Next
+        End If
+            
+  
+    Else
+        'single groups
+        ColumnLetter = Split(Cells(1, (ArrayLen(Groups2Combine) + 1)).Address, "$")(1)
+        Sheet.Range("B" & (finalGroups + 1) & ":" & ColumnLetter & (finalGroups + 1)).Value = Groups2Combine
+    End If
+
+' check for Changes values and insert in table the corresponding validation fields
+' Works put not needed ? potentially is done twice?!
+' Call addChangesValidation
+
+'Add color to the replicates per group fields!
+
+ isEmpty_flag = False
+ counter_isEmpty = 0
+ While isEmpty_flag = False
+    counter_isEmpty = counter_isEmpty + 1
+    isEmpty_flag = IsEmpty(Sheet.Range("A" & (finalGroups + 1)).Offset(0, counter_isEmpty))
+ Wend
+ counter_isEmpty = counter_isEmpty - 1
+ ColumnLetter_tmp = Split(Cells(1, counter_isEmpty + 1).Address, "$")(1)
+ 
+ Sheet.Rows(finalGroups + 2).Select
+ Selection.Interior.ColorIndex = xlNone
+ 
+Sheet.Range("B" & (finalGroups + 2) & ":" & ColumnLetter_tmp & (finalGroups + 2)).Select
+Selection.Interior.Color = RGB(253, 242, 288)
+
+
+' add time dependence Fields that depend on upper input (cannot be put to add requeste colors as this accounts for a change in the worksheet and then infinity loop with functions that are exectued upon change)
+    Dim reMatch As Range
+    Dim match_3 As Range
+    Dim LastRow As Long
+    LastRow = Sheet.Cells.Find("Sample-section", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+
+    For i = 2 To LastRow 'LastRow
+     Set match_3 = Sheet.Rows(i).Find(What:="type_of_time_dependence", LookIn:=xlValues, LookAt:=xlPart, MatchCase:=True, SearchDirection:=xlNext)
+     If Not match_3 Is Nothing Then
+            section2LookAt = match_3.Offset(0, 1).Value
+            Set reMatch = Sheet.Range("A:A").Find(What:=section2LookAt, LookIn:=xlValues, LookAt:=xlWhole, MatchCase:=True, SearchDirection:=xlPrevious)
+            No_groups = reMatch.Offset(2, 2).Value
+            Set copyRange = reMatch.Offset(3, 1)
+            
+            ColumnLetter_start = Split(Cells(1, match_3.Cells.Column + 1).Address, "$")(1)
+            ColumnLetter_end = Split(Cells(1, match_3.Cells.Column + No_groups).Address, "$")(1)
+            ' put entire cols to no color
+            Sheet.Range(ColumnLetter_start & match_3.Cells.Row + 1 & ":" & Split(Cells(1, match_3.Cells.Column + 100).Address, "$")(1) & match_3.Cells.Row + 1).Select
+            Selection.Interior.ColorIndex = xlNone
+            Selection.ClearContents
+            ' put in no color put copy from above
+           
+            Sheet.Range(ColumnLetter_start & (match_3.Cells.Row + 1) & ":" & ColumnLetter_end & (match_3.Cells.Row + 1)).Select
+            Selection.Value = Sheet.Range(copyRange.Offset(0, 1).Address & ":" & copyRange.Offset(0, No_groups).Address).Value
+            
+            
+         End If
+        Next
+Application.EnableEvents = True
+MsgBox "Done!"
+Exit Sub
+
+Err:
+  'catch
+  Application.EnableEvents = True
+  MsgBox "_GENERATE TOTAL GROUPS_ There appeared an error! Most likely due to missing values. Or internal error. Potentially can be ignored", vbCritical
+
+
+End Sub
+
+Public Function ArrayLen(arr As Variant) As Integer
+If IsEmpty(arr) Then
+    ArrayLen = 0
+Else
+    If IsArray(arr) = False Then
+        ArrayLen = 1
+    Else
+        ArrayLen = UBound(arr) - LBound(arr) + 1
+    End If
+End If
+
+End Function
+
