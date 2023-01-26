@@ -1,0 +1,311 @@
+Sub add_requested_col_colors(Optional ByVal Cell2LookAfter As Range)
+
+On Error GoTo ErrValColColors
+'
+' add the requested colors and copy the cell validation to the enire range (which is colored)
+'
+' go through each line
+' find "How many groups?" (+2 rows further or "How many types?" (+1 row further)
+' go either 2 or 1 row further down and number of types times cols to the right and color!
+'
+Dim Sheet As Object
+Set Sheet = ActiveWorkbook.Worksheets("Input")
+Set Validation = ActiveWorkbook.Worksheets("Validation")
+
+If Cell2LookAfter Is Nothing Then
+  Set Cell2LookAfter = Sheet.Range("$A$1")
+End If
+
+Dim b As Range
+
+'currentPositionCell = ActiveCell.Address
+
+Dim LastRow As Long
+LastRow = Sheet.Cells.Find("Sample-section", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+
+For i = 2 To LastRow 'LastRow
+
+    Dim match_1 As Range
+    Dim match_2 As Range
+    Dim match_3 As Range
+    Dim reMatch As Range
+    
+    
+    Dim copyRange As Range
+    
+    Set match_1 = Sheet.Rows(i).Find(What:="How many groups?", LookIn:=xlValues, LookAt:=xlPart, MatchCase:=True, SearchDirection:=xlNext)
+    Set match_2 = Sheet.Rows(i).Find(What:="How many types?", LookIn:=xlValues, LookAt:=xlPart, MatchCase:=True, SearchDirection:=xlNext)
+    Set match_3 = Sheet.Rows(i).Find(What:="type_of_time_dependence", LookIn:=xlValues, LookAt:=xlPart, MatchCase:=True, SearchDirection:=xlNext)
+    
+     Dim iCells As Range
+    
+    If Not match_1 Is Nothing Or Not match_2 Is Nothing Or Not match_3 Is Nothing Then
+    
+        
+       ' If Not match_3 Is Nothing Then
+      '      section2LookAt = match_3.Offset(0, 1).Value
+       '     Set reMatch = Sheet.Range("A:A").Find(What:=section2LookAt, LookIn:=xlValues, LookAt:=xlWhole, MatchCase:=True, SearchDirection:=xlPrevious)
+       '     No_groups = reMatch.Offset(2, 2).Value
+       '     Set copyRange = reMatch.Offset(3, 1)
+       '
+       '     ColumnLetter_start = Split(Cells(1, match_3.Cells.Column + 1).Address, "$")(1)
+       '     ColumnLetter_end = Split(Cells(1, match_3.Cells.Column + No_groups).Address, "$")(1)
+       '     ' put entire cols to no color
+       '     Sheet.Range(ColumnLetter_start & match_3.Cells.Row + 1 & ":" & Split(Cells(1, match_3.Cells.Column + 100).Address, "$")(1) & match_3.Cells.Row + 1).Select
+       '     Selection.Interior.ColorIndex = xlNone
+       '     Selection.Delete
+       '     ' put in no color put copy from above
+           
+       '     Sheet.Range(ColumnLetter_start & (match_3.Cells.Row + 1) & ":" & ColumnLetter_end & (match_3.Cells.Row + 1)).Select
+       '     Selection.Value = Sheet.Range(copyRange.Offset(0, 1).Address & ":" & copyRange.Offset(0, No_groups).Address).Value
+       '     MsgBox copyRange.Address
+            
+       ' End If
+        currentRow = 0
+        If Not match_1 Is Nothing Then
+            
+            No_groups = match_1.Offset(0, 1).Value
+            RowNumber = Split(match_1.Address, "$")(2)
+       
+            ' first reset color before redraw
+            'Rows(match_1.Cells.Row + 2).Select
+            'Selection.Offset(0, 2).Interior.ColorIndex = xlNone
+            
+            'find the next empty cell0 in the specified column and color to that point
+            
+            
+            ColumnLetter_start = Split(Cells(1, match_1.Cells.Column + 1).Address, "$")(1)
+            ColumnLetter_end = Split(Cells(1, match_1.Cells.Column + No_groups).Address, "$")(1)
+            
+            ' color all fields that need to be filled in, hence identify in ColumnLetter_start-1 the next empty cell and expand selection to that row
+            EndRowToColor = Sheet.Range(ColumnLetter_start & i).Offset(0, -1).End(xlDown).Offset(0, 0).Row
+            
+            
+            Sheet.Range(ColumnLetter_start & match_1.Cells.Row + 1 & ":" & Split(Cells(1, match_1.Cells.Column + 100).Address, "$")(1) & EndRowToColor).Select
+            Selection.Interior.ColorIndex = xlNone
+            
+            'For Each iCells In Selection
+            '    iCells.Borders.LineStyle = xlNone
+            'Next iCells
+            
+           If No_groups > 0 Then
+                Sheet.Range(ColumnLetter_start & (match_1.Cells.Row + 1) & ":" & ColumnLetter_end & EndRowToColor).Select
+                Selection.Interior.Color = RGB(253, 242, 288)
+                'go through each row add to all cells the same validation
+               For Each b In Selection.Rows
+                    'copy cell validation from first cell
+                    b.Cells(1, 1).Select
+                    Selection.Copy
+                    Sheet.Range(b.Address).PasteSpecial (xlPasteValidation)
+               Next
+
+          End If
+            
+
+            currentRow = match_1.Cells.Row
+            
+            
+        End If
+        
+         If Not match_2 Is Nothing Then
+
+        
+            No_groups = match_2.Offset(0, 1).Value
+            RowNumber = Split(match_2.Address, "$")(2)
+            
+
+            ' first reset color before redraw
+            Rows(match_2.Cells.Row + 1).Select
+            Selection.Interior.ColorIndex = xlNone
+            
+            ColumnLetter_start = Split(Cells(1, match_2.Cells.Column + 1).Address, "$")(1)
+            ColumnLetter_end = Split(Cells(1, match_2.Cells.Column + No_groups).Address, "$")(1)
+            
+            ' color all fields that need to be filled in, hence identify in ColumnLetter_start-1 the next empty cell and expand selection to that row
+            EndRowToColor = Sheet.Range(ColumnLetter_start & i).Offset(0, -1).End(xlDown).Offset(0, 0).Row
+            
+            Sheet.Range(ColumnLetter_start & match_2.Cells.Row + 1 & ":" & Split(Cells(1, match_2.Cells.Column + 100).Address, "$")(1) & EndRowToColor).Select
+            Selection.Interior.ColorIndex = xlNone
+            'For Each iCells In Selection
+            '    iCells.Borders.LineStyle = xlNone
+            'Next iCells
+            
+            
+            ' for the case of 0
+            
+            If No_groups > 0 Then
+                Sheet.Range(ColumnLetter_start & match_2.Cells.Row + 1 & ":" & ColumnLetter_end & EndRowToColor).Select
+                Selection.Interior.Color = RGB(253, 242, 288)
+                'go through each row add to all cells the same validation
+               For Each b In Selection.Rows
+                    'copy cell validation from first cell
+                    b.Cells(1, 1).Select
+                    Selection.Copy
+                    Sheet.Range(b.Address).PasteSpecial (xlPasteValidation)
+               Next
+            End If
+
+            
+            'Sheet.Range(ColumnLetter_start & match_2.Cells.Row + 1 & ":" & ColumnLetter_end & EndRowToColor).Select
+            'Selection.Interior.Color = RGB(253, 242, 288)
+            
+            'For Each iCells In Selection
+            '    iCells.BorderAround _
+            '    LineStyle:=xlContinuous, _
+            '    Weight:=xlThin
+            'Next iCells
+            
+            currentRow = match_2.Cells.Row
+
+            
+        End If
+        
+        If Not match_3 Is Nothing Then
+        ' special case of time stemps
+        'check next empty cell in the row
+        row2check = match_3.Offset(1, 0)
+        isEmpty_flag = False
+        counter = 1
+        While isEmpty_flag = False
+            counter = counter + 1
+            isEmpty_flag = IsEmpty(match_3.Offset(1, counter))
+        Wend
+        
+        No_groups = counter - 1
+        
+        'No_groups = match_3.Offset(0, 1).Value
+        
+        'add color till next empty row
+
+        ' first reset color before redraw
+            Rows(match_3.Cells.Row + 1).Select
+            Selection.Interior.ColorIndex = xlNone
+            
+            ColumnLetter_start = Split(Cells(1, match_3.Cells.Column + 1).Address, "$")(1)
+            ColumnLetter_end = Split(Cells(1, match_3.Cells.Column + No_groups).Address, "$")(1)
+            
+            ' color all fields that need to be filled in, hence identify in ColumnLetter_start-1 the next empty cell and expand selection to that row
+            EndRowToColor = Sheet.Range(ColumnLetter_start & i).Offset(0, -1).End(xlDown).Offset(0, 0).Row
+            
+            Sheet.Range(ColumnLetter_start & match_3.Cells.Row + 1 & ":" & Split(Cells(1, match_3.Cells.Column + 100).Address, "$")(1) & EndRowToColor).Select
+            Selection.Interior.ColorIndex = xlNone
+            'For Each iCells In Selection
+            '    iCells.Borders.LineStyle = xlNone
+            'Next iCells
+            
+            
+            ' for the case of 0
+            
+            If No_groups > 0 Then
+                Sheet.Range(ColumnLetter_start & match_3.Cells.Row + 1 & ":" & ColumnLetter_end & EndRowToColor).Select
+                Selection.Interior.Color = RGB(253, 242, 288)
+                'go through each row add to all cells the same validation
+               For Each b In Selection.Rows
+                    'copy cell validation from first cell
+                    b.Cells(1, 1).Select
+                    Selection.Copy
+                    Sheet.Range(b.Address).PasteSpecial (xlPasteValidation)
+               Next
+            End If
+
+            
+            'Sheet.Range(ColumnLetter_start & match_2.Cells.Row + 1 & ":" & ColumnLetter_end & EndRowToColor).Select
+            'Selection.Interior.Color = RGB(253, 242, 288)
+            
+            'For Each iCells In Selection
+            '    iCells.BorderAround _
+            '    LineStyle:=xlContinuous, _
+            '    Weight:=xlThin
+            'Next iCells
+            
+            currentRow = match_3.Cells.Row
+        
+        
+        
+        End If
+            
+      
+        ' add validation to colored cell, except 'other' section
+        ' find out which group it is (diet, trestmen, genotype, age or other)
+        'if not other then find the corresponding in validation sheet and add validation to the range (just as the color)
+        'MsgBox Sheet.Range("A" & i).Address
+        
+        ComparisonType = Range("A" & i).End(xlUp).Value
+        
+        If Not ComparisonType = "other" And match_3 Is Nothing Then
+           'find in Validation sheet
+           
+           Dim match As Range
+           Set match = Validation.Cells.Find(What:=ComparisonType, After:=Validation.Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, MatchCase:=True)
+            ColumnLetter = Split(Cells(1, match.Column).Address, "$")(1)
+            ' Get last Row of DropDown
+            LastRowCol = Validation.Cells(Validation.Rows.Count, match.Column).End(xlUp).Row
+            Dim Formula_tmp As String
+            Formula_tmp = "=Validation" & "!$" & ColumnLetter & "$7:$" & ColumnLetter & "$" & LastRowCol
+            ColumnNumber = Range(ColumnLetter_start & 1).Column
+            
+            For j = 1 To No_groups
+            'This adds the validation to the comparison groups
+                      With Sheet.Cells(currentRow + 1, ColumnNumber - 1).Offset(0, j).Validation
+                        .Delete
+                        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertInformation, Operator:=xlBetween, Formula1:=Formula_tmp
+                        .IgnoreBlank = True
+                        .InCellDropdown = True
+                        .InputTitle = "Help:"
+                        .ErrorTitle = "Error"
+                        .ShowInput = True
+                       .ShowError = False
+                    End With
+                    
+            'This adds the validation to all cells underneath colored addionally (except comment, hence -1)
+            
+            Next
+
+        End If
+        
+        ' take inot note the difference for interuption type continued
+        
+        'check how many options are there
+    'Dim lRow As Range
+   ' ColumnLetter = Split(Cells(1, match.Column).Address, "$")(1)
+   ' Set lRow = Validation.Range(ColumnLetter & ":" & ColumnLetter).Find(What:="*", After:=Range(Split(Cells(1, match.Column).Address, "$")(1) & "1"), LookIn:=xlValues, LookAt:=xlWhole, SearchDirection:=xlPrevious, MatchCase:=True)
+    
+   ' Dim NoCovars As Long
+   ' NoCovars = lRow.Row - 6
+    
+   ' Dim Formula_tmp As String
+   ' Formula_tmp = "=Validation" & "!$" & ColumnLetter & "$7:$" & ColumnLetter & "$" & lRow.Row
+        
+        
+   ' For i = 1 To NoCovars
+   ' With Sheet.Cells(convariatesAdded, 1).Offset(0, i).Validation
+   '                     .Delete
+   '                     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertInformation, Operator:=xlBetween, Formula1:=Formula_tmp
+   '                     .IgnoreBlank = True
+   '                     .InCellDropdown = True
+   '                     .InputTitle = "Help:"
+   '                     .ErrorTitle = "Error"
+   '                     .ShowInput = True
+   '                     .ShowError = False 'for the sake of testing this is put to false potentially later to true
+   '  End With
+   ' Next
+   
+        
+   End If
+    
+
+
+    
+Next
+'MsgBox "Done"
+'Sheet.Range(currentPositionCell).Select
+'remove all entries which are not colored in that row
+
+Exit Sub
+
+ErrValColColors:
+'catch
+    MsgBox "error occured in color columns"
+
+End Sub
+

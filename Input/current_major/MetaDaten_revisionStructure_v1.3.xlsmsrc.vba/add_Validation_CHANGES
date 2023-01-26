@@ -1,0 +1,74 @@
+Sub addChangesValidation()
+' procedure to add validation in the Sample - tables if for specific fields "changes was selected"
+
+' do for measurement-type dependence
+' check if changes was selected in drop down,
+' find the last filled table (e.g. if sub-sub samples where measured, sub-samples or samples)
+' find last filled col in row Nr.
+' add fitting validation to all of those
+Application.EnableEvents = False
+    ' Delete all shapes
+    Dim InputSheet As Object
+    Set InputSheet = ActiveWorkbook.Worksheets("Input")
+    
+    Dim RowStart2Search As Long
+    Dim RowEnd2Search As Long
+    RowStart2Search = InputSheet.Columns(1).Find("Preparation", SearchOrder:=xlByRows, LookIn:=xlValues, SearchDirection:=xlAfter).Row
+    
+    RowEnd2Search = InputSheet.Columns(1).Find("Sample-section", SearchOrder:=xlByRows, LookIn:=xlValues, SearchDirection:=xlAfter).Row
+    
+    'Dim ChangesRow As Long
+    Dim match As Object
+    
+    Dim i As Long
+    j = RowStart2Search + 1
+    
+    For i = j To RowEnd2Search
+    
+    Set match = InputSheet.Rows(i).Find("CHANGES", SearchOrder:=xlByRows, LookAt:=xlWhole, MatchCase:=True, LookIn:=xlValues, SearchDirection:=xlAfter)
+    flag = True
+    
+    If Not match Is Nothing Then
+ '       While flag
+            ChangesRow = InputSheet.Rows(i).Find("CHANGES", SearchOrder:=xlByRows, LookAt:=xlWhole, MatchCase:=True, SearchDirection:=xlNext).Address
+                'MsgBox "Changes row:" & ChangesRow
+ '               If Split(ChangesRow, "$")(2) < i Then
+ '                       flag = False
+ '               Else
+ '                   If i < (RowEnd2Search - 1) Then
+ '                       flag = False
+ '                   End If
+                        i_new = Split(ChangesRow, "$")(2)
+                        ' get the validation from this cell
+                       ' InputSheet.Range(ChangesRow).Copy
+                       ' InputSheet.Range("B1:B2").PasteSpecial (xlPasteValidation)
+                       
+                        ' Identify the position in the table
+                        
+                        TableRowPosition = InputSheet.Cells.Find(InputSheet.Range(ChangesRow).Offset(0, -1).Value, SearchOrder:=xlByRows, LookAt:=xlWhole, After:=Cells(RowEnd2Search, 1), SearchDirection:=xlNext).Row
+                        
+                        ' Identify last cell of table
+                        position_latestglobal_id = InputSheet.Cells.Find("global_ID", SearchOrder:=xlByRows, LookAt:=xlWhole, After:=Cells(TableRowPosition, 1), SearchDirection:=xlPrevious).Row
+                        Dim last_col As Integer
+                        last_col = Cells(position_latestglobal_id, Columns.Count).End(xlToLeft).Column
+                        ' identify last row in table
+                        'last_col = Cells(Rows.Count, A).End(xlUp).Row
+                        ' insert validation for the whole row
+
+                        'MsgBox "End Cell to insert" & Split(Cells(1, last_col).Address, "$")(1) & TableRowPosition
+                        'InputSheet.Range("B" & TableRowPosition & ":" & Split(Cells(1, last_col).Address, "$")(1) & TableRowPosition).Select
+                       ' If Not Split(Cells(1, last_col).Address, "$")(1) = "A" Then
+                        InputSheet.Range(ChangesRow).Copy
+                        InputSheet.Range("B" & TableRowPosition & ":" & Split(Cells(1, last_col).Address, "$")(1) & TableRowPosition).PasteSpecial xlPasteValidation
+                       ' End If
+                       
+                        
+                        
+      '             End If
+       '     Wend
+            
+    End If
+    Next
+  Application.EnableEvents = True
+
+End Sub

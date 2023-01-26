@@ -1,0 +1,352 @@
+Sub add_validation(Optional ByVal ValidationSheetSelected As Boolean = False)
+ 
+ 
+ On Error GoTo ErrVal
+'
+' Add to each cell input the coreresponding validation which is saved in the Validation Sheet
+'
+Dim Sheet As Object
+Set Sheet = ActiveWorkbook.Worksheets("Input")
+
+
+Dim Validation As Object
+Dim ValidationSheetChosen As String
+
+'  just check value in respective Cell
+' Include here the user dependet choice of the Validation Sheet
+If Not ValidationSheetSelected Then
+    If Sheet.Cells(1, 3).Value = "Yes" Then
+        ValidationSheetSelected = True
+    Else
+        ValidationSheetSelected = False
+    End If
+End If
+
+If ValidationSheetSelected Then
+    ValidationSheetChosen = "Validation_" & Sheet.Cells(4, 2).Value
+    If Not WorksheetExists(ValidationSheetChosen) Then
+       'MsgBox "The specific Validation does not exist yet, using general"
+        ValidationSheetChosen = "Validation"
+    End If
+    
+    'MsgBox "Specific Chosen:" & ValidationSheetChosen
+    'Set Validation = ActiveWorkbook.Worksheets(ValidationSheetChosen)
+Else
+    'MsgBox "General Chosen"
+    ValidationSheetChosen = "Validation"
+    'Set Validation = ActiveWorkbook.Worksheets("Validation")
+End If
+
+
+' Declaring Boolean Flags
+Dim isBold As Boolean
+
+' Declaring Range Variables
+Dim Cell As Range
+Dim LastRow As Long
+Dim LastRowCol As Long
+
+Dim firstCol As Integer
+Dim secondCol As Integer
+Dim thirdCol As Integer
+
+Dim ColumnLetter As String
+
+' LastRow = Sheet.Cells.Find("*", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+LastRow = Sheet.Cells.Find("Sample-section", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+firstCol = 1
+secondCol = 2
+thirdCol = 3
+
+Dim i As Integer
+
+For i = 1 To LastRow  'LastRow eigentlich 3 nur als Test
+'If i = 114 Then
+'    MsgBox "Investigate"
+'End If
+' NOTE If help messages too long very unspecific error thrown
+    If Sheet.Cells(i, firstCol) = "Data export" Then
+        GoTo NextIteration
+    End If
+    
+    ' Check if first Col has bold written => Group
+    isBold = False
+    If Sheet.Cells(i, firstCol).Font.Bold And IsEmpty(Sheet.Cells(i, firstCol).Value) = False Then
+        isBold = True
+    End If
+
+    If isBold Then
+    'If bold they are the name of the group -> no validation neededbut searched for term if
+    'bold group has in the col next to it also information -> validation needed -> hence search for
+        If IsEmpty(Sheet.Cells(i, secondCol)) = False Then
+            Call ValidateString(firstCol, secondCol, i, ValidationSheetChosen)
+        End If
+    End If
+            
+    'The following is when the 1st and the 2nd colum are populated; first searched in for Validation, 2nd Columns applied Validation
+    If IsEmpty(Sheet.Cells(i, firstCol)) = False And Not isBold Then
+    ' is in first col but not bold
+        Call ValidateString(firstCol, secondCol, i, ValidationSheetChosen)
+    Else
+        isBold = False
+         ' check if second group has bold written => Group
+        If Sheet.Cells(i, secondCol).Font.Bold And IsEmpty(Sheet.Cells(i, secondCol)) = False Then
+            isBold = True
+        End If
+        
+        If isBold Then
+            'if bold they are the named of a group=> no validation needed but searched for
+            'if bold group has in the col next to it also information, include it also into group -> hence search for it in validation sheet
+            If IsEmpty(Sheet.Cells(i, thirdCol)) = False Then
+                Call ValidateString(secondCol, thirdCol, i, ValidationSheetChosen)
+            End If
+        End If
+      'The following is when the 2nd and 3rd column are populated
+        If isBold = False And IsEmpty(Sheet.Cells(i, secondCol)) = False And IsEmpty(Sheet.Cells(i, firstCol)) Then
+            'is in first col but not bold
+
+            Call ValidateString(secondCol, thirdCol, i, ValidationSheetChosen)
+        End If
+        
+        
+    End If
+    
+      ' match has row and column corresponding to what was searched for
+     ' check if matched column is string, Date DropDown or DropDown_M
+
+    
+    
+NextIteration:
+
+Next i ' End For Loop
+
+ 'Sheet.CircleInvalid
+ 'MsgBox "Validation has finished!"
+ 
+ 'mark all invalid cells with read background color
+ Dim data_range As Range
+ Dim invalid_cell As Range
+ Set data_range = Cells.SpecialCells(xlCellTypeAllValidation)
+ 
+ For Each invalid_cell In data_range
+    If Not invalid_cell.Validation.Value Then
+        invalid_cell.Interior.Color = RGB(225, 102, 102)
+    Else
+        invalid_cell.Interior.Color = xlNone
+    End If
+ Next
+ 
+ Exit Sub
+
+ErrVal:
+ 'catch
+ MsgBox "Error appeared during validation. Line: " & i
+ 
+End Sub
+
+
+Private Sub ValidateString(col2Search As Integer, col2Validate As Integer, currentCell As Integer, ValidationSheetChosen As String)
+    Dim tosearch As String
+    Dim ValidationSheetChosen_tmp As String
+    Dim Sheet As Object
+    Set Sheet = ActiveWorkbook.Worksheets("Input")
+    Dim Validation As Object
+    Set Validation = ActiveWorkbook.Worksheets(ValidationSheetChosen)
+    Dim nextCol As Integer
+    
+    tosearch = Sheet.Cells(currentCell, col2Search).Value
+       ' check if toSearch is in italic => this is boolean
+    Dim matchBool As Range
+    Set matchBool = ActiveWorkbook.Worksheets("Validation_bool").Cells.Find(What:=tosearch, LookIn:=xlValues, LookAt:=xlWhole, MatchCase:=True)
+    
+    If Sheet.Cells(currentCell, col2Search).Font.Italic Or Not matchBool Is Nothing Then
+        ValidationSheetChosen_tmp = "Validation_bool"
+        Set Validation = ActiveWorkbook.Worksheets("Validation_bool")
+        'MsgBox Sheet.Cells(currentCell, col2Search).Value
+     Else
+
+        ValidationSheetChosen_tmp = ValidationSheetChosen
+        'MsgBox ValidationSheetChosen_tmp
+    End If
+    
+    Dim tf As String
+    Dim match As Range
+    Set match = Validation.Cells.Find(What:=tosearch, After:=Validation.Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, MatchCase:=True)
+
+     ' match has row and column corresponding to what was searched for
+     ' check if matched column is string, Date DropDown or DropDown_M
+
+    If Not match Is Nothing Then
+     'Convert To Column Letter
+        ColumnLetter = Split(Validation.Cells(1, match.Column).Address, "$")(1)
+        If Validation.Cells(1, match.Column) = "DropDown" Or Validation.Cells(1, match.Column) = "DropDown_M" Then
+            ' Get last Row of DropDown
+            LastRowCol = Validation.Cells(Validation.Rows.Count, match.Column).End(xlUp).Row
+            Dim Formula_tmp As String
+            Formula_tmp = "=" + ValidationSheetChosen_tmp + "!$" + ColumnLetter + "$7:$" + ColumnLetter + "$" + Strings.Trim(Str(LastRowCol))
+            ' MsgBox Formula_tmp
+            ' Make sure to sort the selected DropDown Range in alphabetically order (every time check so if we add things to the list will be sorted automatically)
+            Dim rng As Range
+            Set rng = Range(ValidationSheetChosen_tmp + "!$" + ColumnLetter + "$7:$" + ColumnLetter + "$" + Strings.Trim(Str(LastRowCol)))
+            
+            Validation.Sort.SortFields.Clear
+            Validation.Sort.SortFields.Add2 Key:= _
+                rng, SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+            With Validation.Sort
+                .SetRange rng
+                .Header = xlNo
+                .MatchCase = False
+                .Orientation = xlTopToBottom
+                .SortMethod = xlPinYin
+                .Apply
+            End With
+            
+            ErrorMessage = "If you feel your input is valid and that the Validation is wrong Or missing in the DropDown please contact *lea.seep@uni-bonn.de* or find me at the Mattermost and text me there :)"
+            InputMessage = Validation.Cells(5, match.Column)
+            
+            'check if cell is colored if yes, check next non colored cell and insert validation for the selection
+            'col2Validate is a integer
+            
+            If Sheet.Cells(currentCell, col2Validate).Interior.ColorIndex > 0 Then
+             
+             nextCol = 1
+             While Sheet.Cells(currentCell, col2Validate + nextCol).Interior.ColorIndex > 0
+                nextCol = nextCol + 1
+             Wend
+             'Last Col colored in that row
+             With Sheet.Range(Sheet.Cells(currentCell, col2Validate), Sheet.Cells(currentCell, col2Validate + nextCol - 1)).Validation
+                            .Delete
+                            .Add Type:=xlValidateList, AlertStyle:=xlValidAlertInformation, Operator:=xlBetween, Formula1:=Formula_tmp
+                            .IgnoreBlank = True
+                            .InCellDropdown = True
+                            .InputTitle = "Help:"
+                            .ErrorTitle = "Error"
+                            .InputMessage = InputMessage
+                            .ErrorMessage = ErrorMessage
+                            .ShowInput = True
+                            .ShowError = False 'for the sake of testing this is put to false potentially later to true
+               End With
+             
+             Else
+                With Sheet.Cells(currentCell, col2Validate).Validation
+                            .Delete
+                            .Add Type:=xlValidateList, AlertStyle:=xlValidAlertInformation, Operator:=xlBetween, Formula1:=Formula_tmp
+                            .IgnoreBlank = True
+                            .InCellDropdown = True
+                            .InputTitle = "Help:"
+                            .ErrorTitle = "Error"
+                            .InputMessage = InputMessage
+                            .ErrorMessage = ErrorMessage
+                            .ShowInput = True
+                            .ShowError = False 'for the sake of testing this is put to false potentially later to true
+                End With
+            End If
+        End If
+                
+        If Validation.Cells(1, match.Column) = "DropDown_M" Then
+                    ' this will be handeled by specific sub routine (see end of this Document)
+                    ' to allow multiple selection ( is additional)
+        End If
+                
+        If Validation.Cells(1, match.Column) = "string" Then
+                    
+            ' Help & Error text
+            ErrorMessage = "If you feel your input is valid and that the Validation is wrong Or missing in the DropDown please contact *lea.seep@uni-bonn.de* or find me at the Mattermost and text me there :)"
+            InputMessage = Validation.Cells(5, match.Column)
+            valFormula = "=isTextValid(Input!" & Sheet.Cells(currentCell, col2Validate).Address & "," & ValidationSheetChosen & "!" & ColumnLetter & "3)"
+            'valFormula = IsTextValid(Cells(i, secondCol).Address, "Validation!" & ColumnLetter & "3")
+            'inserts in validation sheet at except same row position the validation cell (works as this is guaranteed to be below row 6
+            ' potentially not the smartest way (extends the validation sheet unnecassarily) but works
+            Validation.Cells(currentCell + 7, match.Column).Value = valFormula
+            Validation.Cells(currentCell + 7, match.Column).Name = "ValidationOf" & ColumnLetter & currentCell
+            tmpName = "=ValidationOf" & ColumnLetter & currentCell
+            'Cells(i, secondCol).Clear
+            
+            
+             If Sheet.Cells(currentCell, col2Validate).Interior.ColorIndex > 0 Then
+             'Dim nextCol As Integer
+             nextCol = 1
+             While Sheet.Cells(currentCell, col2Validate + nextCol).Interior.ColorIndex > 0
+                nextCol = nextCol + 1
+             Wend
+             'Last Col colored in that row
+             With Sheet.Range(Sheet.Cells(currentCell, col2Validate), Sheet.Cells(currentCell, col2Validate + nextCol - 1)).Validation
+                .Delete
+                .Add Type:=xlValidateCustom, AlertStyle:=xlValidAlertInformation, Formula1:=tmpName
+                .IgnoreBlank = True
+                .InCellDropdown = False
+                .InputTitle = "Help:"
+                .ErrorTitle = "Error"
+                .InputMessage = InputMessage
+                .ErrorMessage = ErrorMessage
+                .ShowInput = True
+                .ShowError = False 'for the sake of testing this is put to false potentially later to true
+               End With
+             
+             Else
+            
+            With Cells(currentCell, col2Validate).Validation
+                .Delete
+                .Add Type:=xlValidateCustom, AlertStyle:=xlValidAlertInformation, Formula1:=tmpName
+                .IgnoreBlank = True
+                .InCellDropdown = False
+                .InputTitle = "Help:"
+                .ErrorTitle = "Error"
+                .InputMessage = InputMessage
+                .ErrorMessage = ErrorMessage
+                .ShowInput = True
+                .ShowError = False 'for the sake of testing this is put to false potentially later to true
+            End With
+            End If
+        End If
+            
+        If Validation.Cells(1, match.Column) = "Date" Then
+            'Sheet.Cells(1, 6) = Sheet.Cells(currentCell, col2Validate)
+            
+            If IsDate(Sheet.Cells(currentCell, col2Validate)) Then
+                Sheet.Cells(currentCell, col2Validate).NumberFormat = "yyyy-mm-dd"
+            Else
+                If Not IsEmpty(Sheet.Cells(currentCell, col2Validate)) Then
+                    MsgBox "Please enter a valid date, such as: 2022-11-22 (year-month-day)"
+                    Cancel = True
+                    Sheet.Cells(currentCell, col2Validate).Value = Empty
+                End If
+            End If
+        End If
+        
+        If Validation.Cells(1, match.Column) = "tmp" Then
+        
+        
+             ' Help & Error text
+            ErrorMessage = "If you feel your input is valid and that the Validation is wrong Or missing in the DropDown please contact *lea.seep@uni-bonn.de* or find me at the Mattermost and text me there :)"
+            InputMessage = Validation.Cells(5, match.Column)
+            With Cells(currentCell, col2Validate).Validation
+                .Delete
+                .Add Type:=xlValidateInputOnly, AlertStyle:=xlValidAlertStop, Operator:=xlBetween
+                .IgnoreBlank = True
+                .InCellDropdown = False
+                .InputTitle = "Help:"
+                .ErrorTitle = "Error"
+                .InputMessage = InputMessage
+                .ErrorMessage = ErrorMessage
+                .ShowInput = True
+                .ShowError = False 'for the sake of testing this is put to false potentially later to true
+            End With
+        End If
+        
+    Else
+        'MsgBox "NO Match Found For " & tosearch & "!! NO VALIDATION"  ' Enable to find out which fields are not found in validation!
+    End If
+End Sub
+
+
+Function WorksheetExists(shtName As String, Optional wb As Workbook) As Boolean
+    Dim sht As Worksheet
+
+    If wb Is Nothing Then Set wb = ThisWorkbook
+    On Error Resume Next
+    Set sht = wb.Sheets(shtName)
+    On Error GoTo 0
+    WorksheetExists = Not sht Is Nothing
+End Function
+

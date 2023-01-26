@@ -1,0 +1,12 @@
+' Function that takes the input from the Input Sheet and sends to appropiate field in the template
+
+' Procedure
+' identifies correct template based on experimental system
+' creates copy from template file
+' insert at appropaite positions the input
+
+'save the xlsx (as this needs to be uploaded to the platform)
+
+Sub Input2NCBI_modelOrg()
+ MsgBox "ModelOrg not done yet!"
+End Sub

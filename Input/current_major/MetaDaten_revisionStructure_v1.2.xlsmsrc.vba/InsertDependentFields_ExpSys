@@ -1,0 +1,52 @@
+' dependent Fields
+
+Sub Insert_dep_Fields_exp()
+' Experiemtal System
+' check which experimental system was selected
+' delete all lines till comparison groups
+' find match inSheet ' dependentFields'
+' insert all specified in the lines
+
+Dim InputSheet As Object
+Set InputSheet = ActiveWorkbook.Worksheets("Input")
+
+Dim dependFieldsSheet As Object
+Set dependFieldsSheet = ActiveWorkbook.Worksheets("dependentFields")
+
+Dim ExperimentalSystem As Long
+ExperimentalSystem = InputSheet.Range("A:A").Find("Experimental System", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+
+Dim ComparisonGroups As Long
+ComparisonGroups = InputSheet.Cells.Find("Comparison groups", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+
+' delete previous lines to avoid conflicts
+'Sheet.Range("A" & ExperimentalSystem + 2 & ":GZ" & (ComparisonGroups - 1)).Value = ""
+' identify fixed part end to delete following rows to ensure a complete pre-setUp
+InputSheet.Range("A" & ExperimentalSystem + 2 & ":GZ" & (ComparisonGroups - 1)).Select
+Selection.EntireRow.Delete
+
+' find match in dependent Fields sheet
+Dim dependentFieldsCol As Long
+
+'MsgBox InputSheet.Cells(ExperimentalSystem + 1, 2)
+dependentFieldsCol = dependFieldsSheet.Cells.Find(InputSheet.Cells(ExperimentalSystem + 1, 2).Value, SearchOrder:=xlByRows, SearchDirection:=xlAfter).Column
+ColumLetter = Split(Cells(1, (dependentFieldsCol)).Address, "$")(1)
+
+' find last populated cell
+Dim LastRow As Long
+LastRow = dependFieldsSheet.Range(ColumLetter & ":" & ColumLetter).Find("*", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+' MsgBox LastRow
+' LastRow -2 = Number of lines needed, hence insert +1 to that
+Dim i As Long
+For i = 1 To (LastRow - 2 + 1)
+    Rows(ExperimentalSystem + 2).EntireRow.Insert
+Next
+For i = 1 To (LastRow - 2 + 1)
+    InputSheet.Cells(ExperimentalSystem + 1 + i, 1).Select
+    'MsgBox dependFieldsSheet.Cells(i + 2, dependentFieldsCol).Value
+    Selection.Value = dependFieldsSheet.Cells(i + 2, dependentFieldsCol).Value
+Next
+
+Call add_validation
+
+End Sub

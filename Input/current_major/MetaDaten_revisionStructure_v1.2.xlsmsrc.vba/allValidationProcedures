@@ -1,0 +1,50 @@
+
+Sub all_val_procedure()
+
+currentPositionCell = ActiveCell.Address
+
+Dim Sheet As Object
+Set Sheet = ActiveWorkbook.Worksheets("Input")
+Application.EnableEvents = False
+Sheet.Cells(1, 6).Value = "WAIT!!!"
+
+Sheet.Cells(1, 6).Interior.Color = RGB(255, 0, 0)
+
+Application.Wait (Now + TimeValue("0:00:01"))
+
+
+'remove all current validation and let it re-evaluate ?!
+ Set rng = ThisWorkbook.Sheets("Input").Range("A1:BB300")
+ Set vrng = rng.SpecialCells(xlCellTypeAllValidation)
+ vrng.Validation.Delete
+
+     If Sheet.Cells(1, 3) = "Yes" Then
+            'Call add validation with specific Input Sheet
+                Call add_validation(True)
+            Else
+                'Call add validation with general Input Sheet
+                Call add_validation(False)
+     End If
+     
+     
+     
+     Call addValidationCovars
+     Call add_requested_col_colors
+     Call placeButtonsCorrectly
+     
+    Sheet.Range(currentPositionCell).Select
+    
+    'done to envoke one application change and thereby anythin standing in sheet Input
+
+    Set tmpValue = Sheet.Range(currentPositionCell)
+    Sheet.Range(currentPositionCell).Value = tmpValue.Value
+    
+    
+    Application.EnableEvents = True
+    Sheet.Cells(1, 6).Value = "All good"
+    Sheet.Cells(1, 6).Interior.Color = xlNone
+    
+    
+    MsgBox "Done"
+
+End Sub

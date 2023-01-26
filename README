@@ -1,1 +1,3 @@
--pre commit hooks enabled on Mac to put now VBA files under Verions control
+## Notes
+pre commit hooks enabled on Mac to put now VBA files under Verions control
+check out the *.vba Folders within the current_major

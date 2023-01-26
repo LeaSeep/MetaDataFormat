@@ -1,0 +1,210 @@
+Sub placeButtonsCorrectly()
+' delete all shapes possibly wihtin a range?!
+' set them new..
+' Idea find Position based on search
+' do not place bttton if key cannot be found (time stamps when corresponding rows are hidden
+' attach corresponding macro to button
+    'Application.EnableEvents = False
+    ' Delete all shapes
+    Dim Shp As Shape
+
+    For Each Shp In ActiveSheet.Shapes
+        If (Shp.Type = msoShapeRectangle) Then Shp.Delete
+    Next Shp
+
+      
+    ' ZOOM CAUSES ISSUES!!!!!
+    Dim oldZoom As Integer
+    oldZoom = ActiveWindow.Zoom
+    Application.ScreenUpdating = False
+    ActiveWindow.Zoom = 100 'Set zoom at 100% to avoid positioning errors
+    
+    Set Sheet = ActiveWorkbook.Worksheets("Input")
+
+'First row buttons
+
+' Reset all
+    Dim ResetAll_rng As Range
+    Set ResetAll_rng = Sheet.Range("A1")
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, ResetAll_rng.Left, ResetAll_rng.Top, ResetAll_rng.Width - (ResetAll_rng.Width / 2), ResetAll_rng.Height).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "Reset all"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.OnAction = "resetAllContent"
+    Selection.ShapeRange.Fill.ForeColor.RGB = RGB(245, 166, 7)
+    
+ ' group speecific?
+   Dim groupSpecific_rng As Range
+    Set groupSpecific_rng = Sheet.Range("B1")
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, groupSpecific_rng.Left, groupSpecific_rng.Top, groupSpecific_rng.Width, groupSpecific_rng.Height).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "group specific?"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.ShapeRange.Fill.ForeColor.RGB = RGB(45, 150, 189)
+    
+    'validate
+    Dim validate_rng As Range
+    Set validate_rng = Sheet.Range("E1")
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, validate_rng.Left, validate_rng.Top, validate_rng.Width, validate_rng.Height).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "validate"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.OnAction = "all_val_procedure"
+
+' Find Position Total_groups
+   Position_totalGroups = Sheet.Range("A:A").Find("total_groups", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+   'generateButton
+    Dim rng As Range
+    Set rng = Sheet.Range("B" & Position_totalGroups)
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, rng.Left, rng.Top, rng.Width, rng.Height).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "generate"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.OnAction = "generate_total_groups"
+    Range("A1").Select
+    
+    'Reset
+    Dim reset_rng As Range
+    Set reset_rng = Sheet.Range("C" & Position_totalGroups)
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, reset_rng.Left, reset_rng.Top, reset_rng.Width, reset_rng.RowHeight).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "reset"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.OnAction = "reset_totalGroups"
+    Selection.ShapeRange.Fill.Visible = msoTrue
+    Selection.ShapeRange.Fill.ForeColor.RGB = RGB(245, 166, 7)
+    
+    Range("A1").Select
+    'Application.EnableEvents = True
+    'Restoring original Zoom withoutflickering
+    ActiveWindow.Zoom = oldZoom 'Restore previous zoom
+    Application.ScreenUpdating = True
+    
+    
+'Sample - Section generation
+
+    Sample_section_Start = Sheet.Range("A:A").Find("Sample-Section", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+
+    ' generate
+    Dim generate_rng As Range
+    Set generate_rng = Sheet.Range("B" & Sample_section_Start)
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, generate_rng.Left, generate_rng.Top, generate_rng.Width, generate_rng.RowHeight).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "generate"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.OnAction = "produceSample_table"
+    Selection.ShapeRange.Fill.Visible = msoTrue
+    
+    ' reset sample section
+    Dim reset_sampleS_rng As Range
+    Set reset_sampleS_rng = Sheet.Range("C" & Sample_section_Start)
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, reset_sampleS_rng.Left, reset_sampleS_rng.Top, reset_sampleS_rng.Width, reset_sampleS_rng.RowHeight).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "reset"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.OnAction = "reset_SampleSection"
+    Selection.ShapeRange.Fill.Visible = msoTrue
+    Selection.ShapeRange.Fill.ForeColor.RGB = RGB(245, 166, 7)
+    
+    
+' Export Buttons
+
+ExportSection = Sheet.Range("A:A").Find("Data Export", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+
+    ' export
+    Dim export_rng As Range
+    Set export_rng = Sheet.Range("A" & (ExportSection + 1))
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, export_rng.Left, export_rng.Top, export_rng.Width, export_rng.RowHeight).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "Export"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.OnAction = "DataExport"
+    Selection.ShapeRange.Fill.Visible = msoTrue
+    
+    ' export to NCBI
+    Dim export_NCBI_rng As Range
+    Set export_NCBI_rng = Sheet.Range("A" & (ExportSection + 3))
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, export_NCBI_rng.Left, export_NCBI_rng.Top, export_NCBI_rng.Width, export_NCBI_rng.RowHeight).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "Export to NCBI Metadata"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.OnAction = "exportToNCBI"
+    Selection.ShapeRange.Fill.Visible = msoTrue
+    Selection.ShapeRange.Fill.ForeColor.RGB = RGB(45, 150, 189)
+    
+    'Time Line Buttons
+ On Error GoTo currentlyHidden_noButtons
+    Position_start = Sheet.Range("B:B").Find("Start_1", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+    'if found
+    
+    'Insert Timestamp
+    Dim InsertTime_rng As Range
+    Set InsertTime_rng = Sheet.Range("A" & Position_start)
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, InsertTime_rng.Left + (InsertTime_rng.Width / 2), InsertTime_rng.Top, InsertTime_rng.Width - (InsertTime_rng.Width / 2), InsertTime_rng.RowHeight).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "insert timestamp"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.OnAction = "addTimePoint"
+    Selection.ShapeRange.Fill.Visible = msoTrue
+    
+    'Remove Timestamp
+    Dim remove_rng As Range
+    Set remove_rng = Sheet.Range("A" & (Position_start + 1))
+
+    Sheet.Shapes.AddShape(msoShapeRectangle, remove_rng.Left + (remove_rng.Width / 2), remove_rng.Top, remove_rng.Width - (remove_rng.Width / 2), remove_rng.RowHeight).Select
+
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Size = 12
+    Selection.ShapeRange(1).TextFrame2.TextRange.Characters.Text = "remove timestamp"
+    Selection.ShapeRange(1).TextFrame2.TextRange.Font.Bold = msoTrue
+    Selection.ShapeRange(1).TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+    Selection.ShapeRange(1).TextFrame2.VerticalAnchor = msoAnchorMiddle
+    Selection.OnAction = "removeTimePoint"
+    Selection.ShapeRange.Fill.Visible = msoTrue
+    
+    Exit Sub
+currentlyHidden_noButtons:
+   
+End Sub
+
+
+

@@ -1,0 +1,22 @@
+'Export data to new excel
+' identifies correct template based on experimental system
+
+Sub exportToNCBI()
+    Dim Sheet As Object
+    Set Sheet = ActiveWorkbook.Worksheets("Input")
+    If Sheet.Range("B14").Value = "Mouse" Then
+        Call Input2NCBI_modelOrg
+    End If
+    If Sheet.Range("B14").Value = "Cell-line" Then
+        Call Input2NCBI_modelOrg
+    End If
+    If Sheet.Range("B14").Value = "Human-derived" Then
+        Call Input2NCBI_human
+    End If
+    If Sheet.Range("B14").Value = "Patient" Then
+        Call Input2NCBI_human
+    End If
+    ' MsgBox
+End Sub
+
+

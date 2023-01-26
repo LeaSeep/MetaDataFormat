@@ -1,0 +1,40 @@
+Sub FindAndExecute()
+
+  Dim SearchRange As Range, SearchResults As Range, rng As Range
+    Dim Sheet As Object
+    Set Sheet = ActiveWorkbook.Worksheets("Validation")
+    
+    Set SearchRange = Sheet.UsedRange
+
+    
+    Set SearchResults = FindAll(SearchRange, "DropDown_M")
+    
+    If SearchResults Is Nothing Then
+        'No match found
+    Else
+        For Each rng In SearchResults
+            'Loop for each match
+            MsgBox rng.Address
+        Next
+    End If
+End Sub
+
+
+Function FindAll(rng As Range, What As Variant, Optional LookIn As XlFindLookIn = xlValues, Optional LookAt As XlLookAt = xlWhole, Optional SearchOrder As XlSearchOrder = xlByColumns, Optional SearchDirection As XlSearchDirection = xlNext, Optional MatchCase As Boolean = False, Optional MatchByte As Boolean = False, Optional SearchFormat As Boolean = False) As Range
+    Dim SearchResult As Range
+    Dim firstMatch As String
+    With rng
+        Set SearchResult = .Find(What, , LookIn, LookAt, SearchOrder, SearchDirection, MatchCase, MatchByte, SearchFormat)
+        If Not SearchResult Is Nothing Then
+            firstMatch = SearchResult.Address
+            Do
+                If FindAll Is Nothing Then
+                    Set FindAll = SearchResult
+                Else
+                    Set FindAll = Union(FindAll, SearchResult)
+                End If
+                Set SearchResult = .FindNext(SearchResult)
+            Loop While Not SearchResult Is Nothing And SearchResult.Address <> firstMatch
+        End If
+    End With
+End Function
