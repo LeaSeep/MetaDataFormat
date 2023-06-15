@@ -37,9 +37,8 @@ Sub addComment()
         End If
         
             
-    'nextCol: This would be something new
+    'nextCol: TEST export
             
     Next
-
+ 
 End Sub
-
