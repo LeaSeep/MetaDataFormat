@@ -1,0 +1,100 @@
+Sub addValidationCovars()
+'Section for covariates check
+    ' DOES NOT DEPEND ON GROUP SPECIFICTY
+    
+    Dim Sheet As Object
+    Set Sheet = ActiveWorkbook.Worksheets("Input")
+    Dim Validation As Object
+    Set Validation = ActiveWorkbook.Worksheets("Validation")
+    
+    Dim convariatesAdded As Long
+    
+    ' COVARIATE SECTION
+    convariatesAdded = Sheet.Range("A:A").Find("covariates captured (one per column)", After:=Range("A1"), SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+    ' check if current is empty, if yes add validation maybe in future
+    ' for now add as many validation possibility to number of cols dependent on max covariates
+    Dim match As Range
+    Set match = Validation.Cells.Find(What:="covariates captured (one per column)", After:=Validation.Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, MatchCase:=True)
+    
+    'check how many options are there
+    Dim lRow As Range
+    ColumnLetter = Split(Cells(1, match.Column).Address, "$")(1)
+    Set lRow = Validation.Range(ColumnLetter & ":" & ColumnLetter).Find(What:="*", After:=Range(Split(Cells(1, match.Column).Address, "$")(1) & "1"), LookIn:=xlValues, LookAt:=xlWhole, SearchDirection:=xlPrevious, MatchCase:=True)
+    
+    Dim NoCovars As Long
+    NoCovars = lRow.Row - 6
+    
+    Dim Formula_tmp As String
+    Formula_tmp = "=Validation" & "!$" & ColumnLetter & "$7:$" & ColumnLetter & "$" & lRow.Row
+        
+        
+    For i = 1 To NoCovars
+    With Sheet.Cells(convariatesAdded, 1).Offset(0, i).Validation
+                        .Delete
+                        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertInformation, Operator:=xlBetween, Formula1:=Formula_tmp
+                        .IgnoreBlank = True
+                        .InCellDropdown = True
+                        .InputTitle = "Help:"
+                        .ErrorTitle = "Error"
+                        .ShowInput = True
+                        .ShowError = False 'for the sake of testing this is put to false potentially later to true
+     End With
+   Next
+   
+   ' same for units
+   Dim convariatesAdded_units As Long
+   convariatesAdded_units = Sheet.Range("A:A").Find("unit(if applicable)", After:=Range("A1"), SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+   Dim match1 As Range
+   Set match1 = Validation.Cells.Find(What:="unit(if applicable)", After:=Validation.Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, MatchCase:=True)
+   
+   'check how many options are there
+    Dim lRow1 As Range
+    ColumnLetter1 = Split(Cells(1, match1.Column).Address, "$")(1)
+    Set lRow1 = Validation.Range(ColumnLetter1 & ":" & ColumnLetter1).Find(What:="*", After:=Range(Split(Cells(1, match1.Column).Address, "$")(1) & "1"), LookIn:=xlValues, LookAt:=xlWhole, SearchDirection:=xlPrevious, MatchCase:=True)
+   
+   
+   Formula_tmp1 = "=Validation" & "!$" & ColumnLetter1 & "$7:$" & ColumnLetter1 & "$" & lRow1.Row
+   
+   For i = 1 To NoCovars
+    With Sheet.Cells(convariatesAdded_units, 1).Offset(0, i).Validation
+                        .Delete
+                        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertInformation, Operator:=xlBetween, Formula1:=Formula_tmp1
+                        .IgnoreBlank = True
+                        .InCellDropdown = True
+                        .InputTitle = "Help:"
+                        .ErrorTitle = "Error"
+                        .ShowInput = True
+                        .ShowError = False 'for the sake of testing this is put to false potentially later to true
+     End With
+   Next
+   ' Section for adding Validation of CoVars to the final Sample-Section table
+   ' Idea Include potential validation for all CoVars, add those as drop down Validations to the sample section table (attention is dependen on latest sample/subsample needed)
+   '-> important to first include those, then add validation ( this function should be run AFTER generate Sample section table)
+   
+   
+   'Not Done!
+   
+   ' also here add colors for constants if there
+   
+   isEmpty_flag = False
+    counter_isEmpty = 0
+    While isEmpty_flag = False
+        counter_isEmpty = counter_isEmpty + 1
+        isEmpty_flag = IsEmpty(Sheet.Range("A" & (convariatesAdded + 1)).Offset(0, counter_isEmpty))
+    Wend
+ 
+ ColumnLetter_tmp = Split(Cells(1, counter_isEmpty).Address, "$")(1)
+
+ Sheet.Rows(convariatesAdded + 2).Select
+ Selection.Interior.ColorIndex = xlNone
+ 
+ 
+ If Not ColumnLetter_tmp = "A" Then
+    Sheet.Range("B" & (convariatesAdded + 2) & ":" & ColumnLetter_tmp & (convariatesAdded + 2)).Select
+    Selection.Interior.Color = RGB(253, 242, 288)
+ End If
+ 
+  
+   
+End Sub
+

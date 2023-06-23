@@ -1,0 +1,32 @@
+' add time Point
+Sub addTimePoint()
+
+' INSERT
+  Dim InputSheet As Object
+  Set InputSheet = ActiveWorkbook.Worksheets("Input")
+    
+  Dim RowStart2Search As Long
+  RowStart2Search = InputSheet.Columns(1).Find("Preparation", SearchOrder:=xlByRows, LookIn:=xlValues, SearchDirection:=xlPrevious).Row
+
+  Dim CommentRow As Long
+  CommentRow = InputSheet.Cells.Find("comment", SearchOrder:=xlByRows, LookAt:=xlWhole, MatchCase:=True, LookIn:=xlValues, After:=Cells(RowStart2Search, 1), SearchDirection:=xlPrevious).Row
+  StartSectionRow = InputSheet.Cells.Find("Time-Dependence-timeline", SearchOrder:=xlByRows, LookAt:=xlWhole, MatchCase:=True, LookIn:=xlValues, After:=Cells(RowStart2Search, 1), SearchDirection:=xlPrevious).Row
+    
+   'MsgBox CommentRow
+   ' add after comment row insert 4 rows
+   
+   Rows((CommentRow + 1)).EntireRow.Insert
+   Rows((CommentRow + 1)).EntireRow.Insert
+   Rows((CommentRow + 1)).EntireRow.Insert
+   Rows((CommentRow + 1)).EntireRow.Insert
+ 
+   Dim counter As Long
+   counter = ((CommentRow - (StartSectionRow + 9)) / 4) + 1
+   
+   
+   InputSheet.Range("B" & (CommentRow + 1)).Value = "Start_" & counter
+   InputSheet.Range("B" & CommentRow + 2).Value = "End_" & counter
+   InputSheet.Range("B" & CommentRow + 3).Value = "Type_" & counter
+   InputSheet.Range("B" & CommentRow + 4).Value = "comment"
+    
+End Sub

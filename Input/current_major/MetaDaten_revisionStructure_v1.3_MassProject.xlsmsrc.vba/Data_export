@@ -1,0 +1,39 @@
+' DATA EXPORT
+'ATM this is a sheet
+' do here UUID generation for the moment potentially paste in A1?
+
+Sub DataExport()
+    Application.DisplayAlerts = False
+    Dim wb As Workbook
+    Set wb = Workbooks.Add
+    ThisWorkbook.Sheets("Input").Copy Before:=wb.Sheets(1)
+    ' create UUID
+    uuid = GUID(1)
+    Application.EnableEvents = False
+    wb.Sheets("Input").Range("A2").Value = uuid
+    Application.EnableEvents = True
+    save_name = "/MetaDataSheet" & "_" & ThisWorkbook.Sheets("Input").Range("B7").Value & "_" & uuid & ".xlsx"
+    wb.SaveAs FileName:=ThisWorkbook.Path & save_name, FileFormat:=51, AccessMode:=xlExclusive, ConflictResolution:=Excel.XlSaveConflictResolution.xlLocalSessionChanges
+    wb.Close
+    Application.DisplayAlerts = True
+    MsgBox "Saved under " & ThisWorkbook.Path & save_name
+End Sub
+
+
+Function GUID(Optional lowercase As Boolean, Optional parens As Boolean)
+    Dim k&, h$
+    GUID = Space(36)
+    For k = 1 To Len(GUID)
+        Randomize
+        Select Case k
+            Case 9, 14, 19, 24: h = "-"
+            Case 15:            h = "4"
+            Case 20:            h = Hex(Rnd * 3 + 8)
+            Case Else:          h = Hex(Rnd * 15)
+        End Select
+        Mid$(GUID, k, 1) = h
+    Next
+    If lowercase Then GUID = LCase$(GUID)
+    If parens Then GUID = "{" & GUID & "}"
+End Function
+

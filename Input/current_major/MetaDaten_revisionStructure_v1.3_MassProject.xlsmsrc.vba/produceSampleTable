@@ -1,0 +1,555 @@
+Sub produceSample_table()
+'
+ On Error GoTo Err
+ 
+ 'currentPositionCell = ActiveCell.Address
+
+Application.EnableEvents = False
+' How to build in the timeline?
+' concat the types and rename the group
+' bool of time dependence
+
+' for each covariate, create row - + indicate to fill
+' for each constant, create row and fill with constant
+
+' if interruptions
+' if continuied
+' for i in how many types
+' add specified specifications
+
+'if subsamples and subsubsamples = No
+' add rows of measurement and fill
+' if "changes" indicate to fill
+'else
+' add rows of measrurment that are not "changes" and fill
+Dim Sheet As Object
+Dim uniqueGroupRow As Long
+Dim RowOfRepl As Long
+Dim endRow As Long
+Dim sample_row_start As Long
+Dim subsample_row_start As Long
+Dim subsubsamplepresent_row_start As Long
+Dim i As Integer
+Dim j As Integer
+
+Set Sheet = ActiveWorkbook.Worksheets("Input")
+
+
+sample_row_start = Sheet.Cells.Find("Sample-section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+
+'unhide all rows to be sure that all variables are seen
+Sheet.Rows("1:" & sample_row_start).Hidden = False
+' go trough comparison groups
+uniqueGroupRow = Sheet.Cells.Find("unique_group", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+'endRow = Sheet.Cells.Find("covariates / constants", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+
+'Unhide everything so it can be seen!
+Sheet.Cells.EntireRow.Hidden = False
+
+
+subsubsamplepresent_row_start = Sheet.Cells.Find("subsubsample_present", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+subsample_row_start = Sheet.Cells.Find("Sub-Sample Section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+RowOfRepl = Sheet.Cells.Find("How many replicates per group?", SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row
+Dim DietRow As Long
+DietRow = Sheet.Cells.Find("diet_group", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+Dim TreatmentRow As Long
+TreatmentRow = Sheet.Cells.Find("treatment_group", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+Dim GenotypeRow As Long
+GenotypeRow = Sheet.Cells.Find("genotype_group", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+Dim AgeRow As Long
+AgeRow = Sheet.Cells.Find("age_group", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+Dim otherRow As Long
+otherRow = Sheet.Cells.Find("other_group", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+
+Dim dataExport_row As Long
+dataExport_row = Sheet.Cells.Find("Data Export", SearchOrder:=xlByRows, SearchDirection:=xlAfter).Row
+
+' delete entire  sample section table (if any) to avoid issues
+Sheet.Range("B" & sample_row_start + 1 & ":GZ" & dataExport_row).Value = ""
+' identify fixed part end to delete following rows to ensure a complete pre-setUp
+Sheet.Range("A" & (subsubsamplepresent_row_start + 1) & ": A" & (subsample_row_start - 1)).Select
+Selection.EntireRow.Delete
+
+subsample_row_start = Sheet.Cells.Find("Sub-Sample Section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+
+Sheet.Rows(subsample_row_start).EntireRow.Insert
+Sheet.Rows(subsample_row_start).EntireRow.Insert
+
+subsample_row_start = Sheet.Cells.Find("Sub-Sample Section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+
+Sheet.Range("B" & sample_row_start + 1 & ":GZ" & subsample_row_start).Interior.Color = xlNone
+
+Dim RowStart As Long
+Dim RowEnd As Long
+RowStart = Sheet.Cells.Find("sub_sub_sample_procedure", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+RowEnd = Sheet.Cells.Find("Data Export", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+Sheet.Range("A" & (RowStart + 1) & ": A" & (RowEnd - 1)).Select
+
+Selection.EntireRow.Delete
+RowEnd = Sheet.Cells.Find("Data Export", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+Sheet.Rows(RowEnd).EntireRow.Insert
+         
+RowStart = Sheet.Cells.Find("sub_sample_procedure", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+RowEnd = Sheet.Cells.Find("Sub-Sub-Sample Section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+Sheet.Range("A" & (RowStart + 1) & ": A" & (RowEnd - 1)).Select
+
+Selection.EntireRow.Delete
+RowEnd = Sheet.Cells.Find("Sub-Sub-Sample Section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+Sheet.Rows(RowEnd).EntireRow.Insert
+        
+
+' populate the fixed part
+' we need the differetn groups to match the dependent part on it
+cols = 1
+Start = 2
+
+'
+
+
+' For every single Sample
+For i = 1 To Application.Sum(Sheet.Rows(RowOfRepl))
+
+    ' constant for each replicate
+    Sheet.Cells(Sheet.Cells.Find("Nr.", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row, i + 1) = i
+    Sheet.Cells(Sheet.Cells.Find("personal_ID", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row, i + 1).Interior.Color = RGB(253, 242, 208)
+    
+    ' if subsamples and subsubsample are present
+    If Sheet.Cells(Sheet.Cells.Find("Need of subsamples", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row, 2) = "Yes" Then
+        Sheet.Cells(Sheet.Cells.Find("subsample_present", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row, i + 1) = 1
+    Else
+        Sheet.Cells(Sheet.Cells.Find("subsample_present", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row, i + 1) = 0
+    End If
+    
+    If Sheet.Cells(Sheet.Cells.Find("Need of subsubsamples", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row, 2) = "Yes" Then
+        Sheet.Cells(Sheet.Cells.Find("subsubsample_present", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row, i + 1) = 1
+    Else
+        Sheet.Cells(Sheet.Cells.Find("subsubsample_present", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row, i + 1) = 0
+    End If
+
+
+' covariates field insert  Validation for each col
+' constant values here (with specification)
+
+'constant over each replicate
+cols = cols + 1
+If Not IsEmpty(Sheet.Cells(RowOfRepl, cols)) Then
+        GroupName = Sheet.Cells(RowOfRepl - 1, cols)
+        NoRepl = Sheet.Cells(RowOfRepl, cols)
+        
+        ' replicates group
+        EndLetter = Split(Cells(1, (Start + (NoRepl - 1))).Address, "$")(1)
+        StartLetter = Split(Cells(1, (Start)).Address, "$")(1)
+        ' get group name
+        Sheet.Range(StartLetter & uniqueGroupRow & ":" & EndLetter & uniqueGroupRow) = GroupName
+        For j = 1 To NoRepl
+            Sheet.Cells(uniqueGroupRow + 1, (Start - 1 + j)).Value = j
+            'MsgBox j
+            
+            mystring = Sheet.Cells(uniqueGroupRow, (Start - 1 + j)).Value
+            'Diet
+            If InStr(mystring, " x ") > 0 Or Sheet.Cells.Find("diet", SearchOrder:=xlByRows, After:=Cells(1, 1), SearchDirection:=xlNext).Offset(0, 1).Value = "Yes" Then
+            If InStr(mystring, " x ") > 0 Then
+                Sheet.Cells(DietRow, (Start - 1 + j)).Value = Split(mystring, " x ")(0)
+                'remove to catch instances when this is not the first thing
+                mystring = Trim(Replace(mystring, Sheet.Cells(DietRow, (Start - 1 + j)).Value & " x", "", 1, 1))
+            Else
+                Sheet.Cells(DietRow, (Start - 1 + j)).Value = mystring
+            End If
+            Else
+                Sheet.Cells(DietRow, (Start - 1 + j)).Value = "NA"
+            End If
+            
+            'Treatment
+            If InStr(mystring, " x ") > 0 Or Sheet.Cells.Find("treatment", SearchOrder:=xlByRows, After:=Cells(1, 1), SearchDirection:=xlNext).Offset(0, 1).Value = "Yes" Then
+                
+                If InStr(mystring, " x ") > 0 Then
+                    Sheet.Cells(TreatmentRow, (Start - 1 + j)).Value = Split(mystring, " x ")(0)
+                    ' remove to catch instances when this is not the first thing
+                    mystring = Trim(Replace(mystring, Sheet.Cells(TreatmentRow, (Start - 1 + j)).Value & " x", "", 1, 1))
+                Else
+                    Sheet.Cells(TreatmentRow, (Start - 1 + j)).Value = mystring
+                End If
+            Else
+                Sheet.Cells(TreatmentRow, (Start - 1 + j)).Value = "NA"
+            End If
+            
+            'Genotype
+            If InStr(mystring, " x ") > 0 Or Sheet.Cells.Find("genotype", SearchOrder:=xlByRows, After:=Cells(1, 1), SearchDirection:=xlNext).Offset(0, 1) = "Yes" Then
+                If InStr(mystring, " x ") > 0 Then
+                    Sheet.Cells(GenotypeRow, (Start - 1 + j)).Value = Split(mystring, " x ")(0)
+                    ' remove to catch instances when this is not the first thing
+                    mystring = Trim(Replace(mystring, Sheet.Cells(GenotypeRow, (Start - 1 + j)).Value & " x", "", 1, 1))
+                Else
+                    Sheet.Cells(GenotypeRow, (Start - 1 + j)).Value = mystring
+                End If
+            Else
+                Sheet.Cells(GenotypeRow, (Start - 1 + j)).Value = "NA"
+            End If
+            
+            'age
+             If InStr(mystring, " x ") > 0 Or Sheet.Cells.Find("age", SearchOrder:=xlByRows, After:=Cells(1, 1), SearchDirection:=xlNext).Offset(0, 1) = "Yes" Then
+                If InStr(mystring, " x ") > 0 Then
+                    Sheet.Cells(AgeRow, (Start - 1 + j)).Value = Split(mystring, " x ")(0)
+                    ' remove to catch instances when this is not the first thing
+                    mystring = Trim(Replace(mystring, Sheet.Cells(AgeRow, (Start - 1 + j)).Value & " x", "", 1, 1))
+                Else
+                    Sheet.Cells(AgeRow, (Start - 1 + j)).Value = mystring
+                End If
+             Else
+                Sheet.Cells(AgeRow, (Start - 1 + j)).Value = "NA"
+            End If
+            
+            'other
+             If InStr(mystring, " x ") > 0 Or Sheet.Cells.Find("other", SearchOrder:=xlByRows, After:=Cells(1, 1), SearchDirection:=xlNext).Offset(0, 1) = "Yes" Then
+                If InStr(mystring, " x ") > 0 Then
+                    Sheet.Cells(otherRow, (Start - 1 + j)).Value = Split(mystring, " x ")(0)
+                    ' remove to catch instances when this is not the first thing
+                    mystring = Trim(Replace(mystring, Sheet.Cells(otherRow, (Start - 1 + j)).Value & " x", "", 1, 1))
+                Else
+                    Sheet.Cells(otherRow, (Start - 1 + j)).Value = mystring
+                End If
+            Else
+                Sheet.Cells(otherRow, (Start - 1 + j)).Value = "NA"
+            End If
+            
+        Next j
+        Start = Start + NoRepl
+End If
+
+Dim globalID_Row As Long
+globalID_Row = Sheet.Cells.Find("global_ID", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+Sheet.Cells(globalID_Row, i + 1).Value = "ID_lvl1_" & Sheet.Cells(globalID_Row + 2, i + 1) & "_" & Sheet.Cells(globalID_Row + 1, i + 1)
+    
+Next i
+
+' Measurment add sectiom
+' dependent on sum of the booelan (whether subsample and/or subsubsample) are present; needs the measurement added to the corresponding table
+Dim rowMeasurmentDependent As Long
+sum_bools = Sheet.Cells(Sheet.Cells.Find("subsample_present", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row, 1 + 1) + Sheet.Cells(Sheet.Cells.Find("subsubsample_present", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row, 1 + 1)
+' get everything below measurement-type-dependent in 2nd col till empyt cell
+rowMeasurmentDependent = Sheet.Cells.Find("measurement-type-dependent", SearchOrder:=xlByRows, After:=Cells(1, 1), SearchDirection:=xlNext).Row
+'
+
+Dim counter As Long
+
+Dim row2Insert As Long
+
+counter = rowMeasurmentDependent + 1
+
+While Not (IsEmpty(Sheet.Cells(counter, 2)))
+    measurementFiled2Add = Sheet.Cells(counter, 2).Value
+    
+     If Not Sheet.Cells(counter, 2).Offset(0, 1).Value = "CHANGES" Then
+        counter = counter + 1 ' Needed otherwise infint loop
+        GoTo NoChanges
+     End If
+     counter = counter + 1
+    
+    If sum_bools = 0 Then
+        'only samples
+        
+        row2Insert = Sheet.Cells.Find("subsubsample_present", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+        ' insert (really generate new rows) those after next empty cell (after subsubsample present)
+        Rows(row2Insert + 1).EntireRow.Insert
+        'MsgBox measurementFiled2Add
+        Sheet.Cells(row2Insert + 1, 1).Value = measurementFiled2Add
+        'Sheet.Cells((row2Insert + counter), 1).Value = measurementFiled2Add
+        
+    End If
+    
+    If sum_bools = 1 Then
+    ' subsamples needed
+    ' insert the measurment specific rows in
+      row2Insert = Sheet.Cells.Find("sub_sample_procedure", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+        ' insert (really generate new rows) those after next empty cell (after subsubsample present)
+        Rows(row2Insert + 1).EntireRow.Insert
+        'MsgBox measurementFiled2Add
+        Sheet.Cells(row2Insert + 1, 1).Value = measurementFiled2Add
+        'Sheet.Cells((row2Insert + counter), 1).Value = measurementFiled2Add
+ 
+        
+    End If
+    
+    If sum_bools = 2 Then
+         'subsubamples needed
+         
+          row2Insert = Sheet.Cells.Find("sub_sub_sample_procedure", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+        ' insert (really generate new rows) those after next empty cell (after subsubsample present)
+        Rows(row2Insert + 1).EntireRow.Insert
+        'MsgBox measurementFiled2Add
+        Sheet.Cells(row2Insert + 1, 1).Value = measurementFiled2Add
+        'Sheet.Cells((row2Insert + counter), 1).Value = measurementFiled2Add
+
+    End If
+NoChanges:
+    
+Wend
+    
+'''  Data Files Linkage Section
+rowDataFilesLinkage = Sheet.Cells.Find("DataFiles-Linkage", SearchOrder:=xlByRows, After:=Cells(1, 1), SearchDirection:=xlNext).Row
+
+
+Dim counter2 As Long
+
+Dim row2Insert2 As Long
+
+counter2 = rowDataFilesLinkage + 1
+
+While (Not (IsEmpty(Sheet.Cells(counter2, 1))) Or Not (IsEmpty(Sheet.Cells(counter2, 2))))
+    
+    If Not (IsEmpty(Sheet.Cells(counter2, 1))) Then
+        measurementFiled2Add2 = Sheet.Cells(counter2, 1).Value
+    Else
+        measurementFiled2Add2 = Sheet.Cells(counter2, 2).Value
+    End If
+    
+    
+    
+     If Not Sheet.Cells(counter2, 1).Offset(0, 1).Value = "CHANGES" And Not Sheet.Cells(counter2, 2).Offset(0, 1).Value = "CHANGES" Then
+        counter2 = counter2 + 1 ' Needed otherwise infint loop
+        GoTo NoChanges2
+     End If
+     counter2 = counter2 + 1
+    
+    If sum_bools = 0 Then
+        'only samples
+        
+        row2Insert2 = Sheet.Cells.Find("subsubsample_present", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+        ' insert (really generate new rows) those after next empty cell (after subsubsample present)
+        Rows(row2Insert2 + 1).EntireRow.Insert
+        'MsgBox measurementFiled2Add
+        Sheet.Cells(row2Insert2 + 1, 1).Value = measurementFiled2Add2
+        'Sheet.Cells((row2Insert + counter), 1).Value = measurementFiled2Add
+        
+    End If
+    
+    If sum_bools = 1 Then
+    ' subsamples needed
+    ' insert the measurment specific rows in
+      row2Insert2 = Sheet.Cells.Find("sub_sample_procedure", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+        ' insert (really generate new rows) those after next empty cell (after subsubsample present)
+        Rows(row2Insert2 + 1).EntireRow.Insert
+        'MsgBox measurementFiled2Add
+        Sheet.Cells(row2Insert2 + 1, 1).Value = measurementFiled2Add2
+        'Sheet.Cells((row2Insert + counter), 1).Value = measurementFiled2Add
+ 
+        
+    End If
+    
+    If sum_bools = 2 Then
+         'subsubamples needed
+         
+        row2Insert2 = Sheet.Cells.Find("sub_sub_sample_procedure", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+        ' insert (really generate new rows) those after next empty cell (after subsubsample present)
+        Rows(row2Insert2 + 1).EntireRow.Insert
+        'MsgBox measurementFiled2Add
+        Sheet.Cells(row2Insert2 + 1, 1).Value = measurementFiled2Add2
+        'Sheet.Cells((row2Insert + counter), 1).Value = measurementFiled2Add
+
+    End If
+NoChanges2:
+    
+Wend
+'
+
+''' Covariates section
+' find the covariates row
+' go one column further till cell is empty
+' add below subsubsample_present - OLD
+' should be added to corresponding last section
+
+Dim rowCovariates As Long
+rowCovariates = Sheet.Cells.Find("covariates captured (one per column)", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+
+Dim dependentRow As Long
+'dependentRow = Sheet.Cells.Find("subsubsample_present", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+
+    If sum_bools = 0 Then
+        'only samples
+        dependentRow = Sheet.Cells.Find("subsubsample_present", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+    End If
+    
+    If sum_bools = 1 Then
+      dependentRow = Sheet.Cells.Find("sub_sample_procedure", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+    End If
+    
+    If sum_bools = 2 Then
+         'subsubamples needed
+        dependentRow = Sheet.Cells.Find("sub_sub_sample_procedure", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+    End If
+    
+    Dim nextCol As Integer
+    nextCol = 2
+    While Not IsEmpty(Sheet.Cells(rowCovariates, nextCol))
+        Sheet.Rows(dependentRow - 1 + nextCol).EntireRow.Insert
+        Sheet.Cells(dependentRow - 1 + nextCol, 1).Value = Sheet.Cells(rowCovariates, nextCol)
+        nextCol = nextCol + 1
+    Wend
+    
+    '''
+
+' Dependent if sum_bools > 0  the matches  must be made
+' do we need to take care of replicates here as well?? (at the moment not ,try to include possibility to include replicates)
+
+' for each col at top split into number of types (and the number of replicates)  = sum(number replicates) per each unique replicate (hence each row)
+
+' for each uniq replicate constant sample_match + appropiate group
+
+prepRow = Sheet.Cells.Find("Preparation", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+
+If sum_bools > 0 Then
+' subsamples at least needed assuming each sample_replicate is split
+' get groups of subsamples
+sub_sample_groups = Sheet.Cells.Find("Need of subsamples", SearchOrder:=xlByRows, After:=Cells(prepRow, 1), SearchDirection:=xlNext).Row
+Dim col2start, No_replicates, No_groups, global_counter As Integer
+
+col2start = 2
+No_groups = Sheet.Cells.Find("How many types?", SearchOrder:=xlByRows, After:=Cells(prepRow, 1), SearchDirection:=xlNext).Offset(0, 1).Value
+
+No_replicates = Sheet.Cells.Find("replicates (one per column)", SearchOrder:=xlByRows, After:=Cells(prepRow, 1), SearchDirection:=xlNext).Row
+No_replicates = Application.WorksheetFunction.Sum(Range("B" & No_replicates & ":" & Split(Cells(1, (2 + No_groups)).Address, "$")(1) & No_replicates))
+
+global_counter = 1
+sample_row_start = Sheet.Cells.Find("Sub-Sample Section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+globalID_Row = Sheet.Cells.Find("global_ID", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+
+
+For i = 1 To Application.Sum(Sheet.Rows(RowOfRepl))
+        RowStart = Sheet.Cells.Find("Sub-Sample Section", SearchOrder:=xlByRows, After:=Cells(prepRow, 1), SearchDirection:=xlNext).Row
+        ColumLetter = Split(Cells(1, (col2start)).Address, "$")(1)
+        Sheet.Range(ColumLetter & RowStart + 4 & ":" & Split(Cells(1, (col2start - 1 + No_replicates)).Address, "$")(1) & RowStart + 4).Select
+        col2start = col2start + (No_replicates)
+        'MsgBox Selection.Columns.Count
+        Selection.Value = Sheet.Cells.Find("global_ID", SearchOrder:=xlByRows, After:=Cells(prepRow, 1), SearchDirection:=xlNext).Offset(0, i).Value
+        
+        counter = 0
+        For j = 1 To No_groups
+        No_replicates_tmp = Sheet.Cells.Find("replicates (one per column)", SearchOrder:=xlByRows, After:=Cells(prepRow, 1), SearchDirection:=xlNext).Offset(0, j)
+    
+        For k = 1 To No_replicates_tmp
+                ' subsample name
+                 Selection.Cells(1, 1).Offset(1, counter).Value = Sheet.Cells.Find("Specification of groups (one per column)", SearchOrder:=xlByRows, After:=Cells(sub_sample_groups, 1), SearchDirection:=xlNext).Offset(0, j).Value
+
+                 'subsample replicate
+                 Selection.Cells(1, 1).Offset(2, counter).Value = k
+                 
+                 'subsample procedure
+                 Selection.Cells(1, 1).Offset(3, counter).Value = Sheet.Cells.Find("procedures", SearchOrder:=xlByRows, After:=Cells(sub_sample_groups, 1), SearchDirection:=xlNext).Offset(0, j).Value
+                     
+                ' fill in global number number
+                Selection.Cells(1, 1).Offset(-1, counter).Value = global_counter
+                
+                
+                'global ID
+                Sheet.Cells(globalID_Row, global_counter + 1).Value = "ID_lvl2_" & Sheet.Cells(globalID_Row + 2, global_counter + 1) & "_" & Sheet.Cells(globalID_Row + 3, global_counter + 1) & "_" & Sheet.Cells(globalID_Row + 4, global_counter + 1)
+                global_counter = global_counter + 1
+                counter = counter + 1
+            
+            Next k
+        Next j
+    Next
+    
+    If sum_bools > 1 Then
+        ' subsamples at least needed assuming each sample_replicate is split
+        ' get groups of subsamples
+        sample_row_start_real = Sheet.Cells.Find("Sub-Sample Section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+        
+        sub_sample_groups = Sheet.Cells.Find("Need of subsubsamples", SearchOrder:=xlByRows, After:=Cells(prepRow, 1), SearchDirection:=xlNext).Row
+        col2start = 2
+        No_groups = Sheet.Cells.Find("How many types?", SearchOrder:=xlByRows, After:=Cells(sub_sample_groups, 1), SearchDirection:=xlNext).Offset(0, 1).Value
+        
+        No_replicates = Sheet.Cells.Find("replicates (one per column)", SearchOrder:=xlByRows, After:=Cells(sub_sample_groups, 1), SearchDirection:=xlNext).Row
+        No_replicates = Application.WorksheetFunction.Sum(Range("B" & No_replicates & ":" & Split(Cells(1, (2 + No_groups)).Address, "$")(1) & No_replicates))
+        
+        'MsgBox "No of repl subsubsamples:" & No_replicates
+        
+        sample_row_start = Sheet.Cells.Find("Sub-Sub-Sample Section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+        globalID_Row = Sheet.Cells.Find("global_ID", SearchOrder:=xlByRows, After:=Cells(sample_row_start, 1), SearchDirection:=xlNext).Row
+        
+        
+        RowOfNr = global_counter - 1
+        global_counter = 1
+        
+        
+        
+            For i = 1 To RowOfNr
+                RowStart = Sheet.Cells.Find("Sub-Sub-Sample Section", SearchOrder:=xlByRows, After:=Cells(prepRow, 1), SearchDirection:=xlNext).Row
+                ColumLetter = Split(Cells(1, (col2start)).Address, "$")(1)
+                Sheet.Range(ColumLetter & RowStart + 4 & ":" & Split(Cells(1, (col2start - 1 + No_replicates)).Address, "$")(1) & RowStart + 4).Select
+                col2start = col2start + (No_replicates)
+                
+                
+                Selection.Value = Sheet.Cells.Find("global_ID", SearchOrder:=xlByRows, After:=Cells(sample_row_start_real, 1), SearchDirection:=xlNext).Offset(0, i).Value
+                
+                counter = 0
+                For j = 1 To No_groups
+                No_replicates_tmp = Sheet.Cells.Find("replicates (one per column)", SearchOrder:=xlByRows, After:=Cells(sub_sample_groups, 1), SearchDirection:=xlNext).Offset(0, j).Value
+        
+                 For k = 1 To No_replicates_tmp
+                ' subsample name
+                 Selection.Offset(1, counter).Value = Sheet.Cells.Find("Specification of groups (one per column)", SearchOrder:=xlByRows, After:=Cells(sub_sample_groups, 1), SearchDirection:=xlNext).Offset(0, j).Value
+                 
+                 'subsample replicate
+                 Selection.Offset(2, counter).Value = k
+                 
+                 'subsample procedure
+                 Selection.Offset(3, counter).Value = Sheet.Cells.Find("procedures", SearchOrder:=xlByRows, After:=Cells(sub_sample_groups, 1), SearchDirection:=xlNext).Offset(0, j).Value
+                     
+                 ' fill in global number number
+                 Selection.Offset(-1, counter).Value = global_counter
+                
+                
+                'global ID
+                Sheet.Cells(globalID_Row, global_counter + 1).Value = "ID_lvl3_" & Sheet.Cells(globalID_Row + 2, global_counter + 1) & "_" & Sheet.Cells(globalID_Row + 3, global_counter + 1) & "_" & Sheet.Cells(globalID_Row + 4, global_counter + 1)
+        
+                global_counter = global_counter + 1
+                counter = counter + 1
+                    
+                    Next k
+                Next j
+            Next
+    End If
+    
+End If
+
+
+'For i = 1 To Application.Sum(Sheet.Rows(RowOfRepl))
+        
+' constant over each Diet
+
+' constant over each age
+' constant over each Treatment
+' constant over each genotype
+
+
+Dim finalRows2Add As Long
+finalRows2Add = Sheet.Cells.Find("Sub-Sample Section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+Sheet.Rows(finalRows2Add).EntireRow.Insert
+
+finalRows2Add = Sheet.Cells.Find("Data Export", SearchOrder:=xlByRows, SearchDirection:=xlNext).Row
+Sheet.Rows(finalRows2Add).EntireRow.Insert
+
+
+Call addChangesValidation
+'Call add_validation
+Call addValidationCovars
+'Put here to trigger once the on change function
+Application.EnableEvents = True
+
+Call Hide_unnecassary
+
+Sheet.Range(Sheet.Cells.Find("Sample-section", SearchOrder:=xlByRows, SearchDirection:=xlNext).Address).Offset(2, 0).Select
+
+
+
+Exit Sub
+
+Err:
+    ' This is  'Catch'
+     Application.EnableEvents = True
+     MsgBox "_GENERATE SAMPLE TABLE_ There appeared an error! Most likely due to missing values. Have you filled in all pink cells? If you do not have a certain group make sure to fill in a 0. In case of on going issues please contact lea.seep@uni-bonn.de", vbCritical
+    
+
+End Sub
+
+
