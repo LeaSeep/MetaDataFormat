@@ -21,7 +21,7 @@ For more background information, please see the manuscript.
 
 ## Introduction {.tabset .color-tabs .tabset-pills}
 
-Hey there! This tutorial should guide you through your own first steps to fill in the Metadata sheet for an example outlined here. Once you are familiar with the principles of the sheet and the requested information it should be easy for you to move on to your own experiments. Remember, you filling in the sheet along with your data will not only have benefits for you (e.g. using ShinyOmics) but also for your group and beyond!
+Hey there! This tutorial should guide you through your own first steps to fill in the Metadata sheet for an example outlined here. Once you are familiar with the principles of the sheet and the requested information it should be easy for you to move on to your own experiments. Remember, you filling in the sheet along with your data will not only have benefits for you (e.g. using cOmicsArt (https://shiny.iaas.uni-bonn.de/cOmicsArt/)) but also for your group and beyond!
 
 Please prepare:
 
