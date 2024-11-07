@@ -1,5 +1,5 @@
 ---
-title: "Metadata-Sheet Tutorial"
+title: "Metadatasheet Tutorial"
 output: 
   html_document:
     theme:
@@ -16,19 +16,24 @@ output:
     toc: true
     toc_float: true
 ---
+Datasets consist of measurement data and metadata. Metadata provides context, essential for understanding and (re-)using data. Metadata is created along the data lifecycle - hence it makes sense to collect and gather it in an unified document throughout the lifecycle - the Metadata Sheet!
+For more background information, please see the manuscript.
 
 ## Introduction {.tabset .color-tabs .tabset-pills}
 
-Hey there! This tutorial should guide you through your own first steps to fill in the Metadata sheet for an example outlined here. Once you are familiar with the principles of the sheet and the requested information it should be easy for you to move on to your own experiments. Remember, you filling in the sheet along with your data will not only have benefits for you (e.g. using ShinyOmics) but also for the SFB community!
+Hey there! This tutorial should guide you through your own first steps to fill in the Metadata sheet for an example outlined here. Once you are familiar with the principles of the sheet and the requested information it should be easy for you to move on to your own experiments. Remember, you filling in the sheet along with your data will not only have benefits for you (e.g. using ShinyOmics) but also for your group and beyond!
 
 Please prepare:
 
--   open a new [Metadata Sheet](https://uni-bonn.sciebo.de/f/1965488410)
+-   open a new Metadata Sheet
     -   make sure to allow the Macros
+    -   make sure your Excel Version is recent enough (You will get a warning if not). You might want to proceed, however functionality cannot be guaranteed. In this case you might need to collapse to the sheet without implementation and its handy features. Please go to section [Sheet only]
 
-    -   you might get asked if you want to update, which you can handle as you like
+For the tutorial:
+You will first be introduced to the example dataset. You probably will need to come back multiple times to this section to be able to fill in the metadata sheet.
 
-You will first be introduced into the example dataset. You probably will need to come back multiple times to the section to be able to fill in the metadata sheet.
+For your understanding: 
+You can find under [Q&A] section some quizzes and explanations to test your knowledge or identify answers to your questions.
 
 ### Example Data - bulk transcriptomics
 
@@ -54,21 +59,21 @@ Additional Information:
 
 #### Trouble Shoot
 
-The Metadata-Sheet is still work-in-progress so you might experience unexpected behavior or no behavior at all.
+The Metadata-Sheet has been tested with several user's - more usage might discover new bugs. Before reporting please make sure to try the following things.
 
-Your first try should be always to click validate and wait. If your problem does not resolve try to reset the section you have trouble with. Here, try to reset the cell from top to bottom.
+Your first try should be always to click validate and wait. You might need to do so up to two times. If your problem does not resolve try to reset the section you have trouble with. Here, try to reset the cell from top to bottom.
 
 If all of this does not help you might need to completely reset your Sheet (attention this will need an entire rework of the sheet). If you experience misbehavior every time you do a certain action please contact [lea.seep\@uni-bonn.de](mailto:lea.seep@uni-bonn.de){.email}.
 
-If an Excel-Error message pops up please first click validate before moving on!
+If an Excel-Error message pops up - click 'End' - before proceeding please first click validate!
 
-## Metadata-Sheet
+## Basic Metadatasheet
 
-Given the information from [Example Data - bulk transcriptomics](#example-data---bulk-transcriptomics-1) you are now asked to fill in the three Sections of the Sheet sequentially.
+Given the information from above - [Example Data - bulk transcriptomics](#example-data---bulk-transcriptomics-1) - you are now asked to fill in the three Sections of the Sheet sequentially.
 
 ### Section 1
 
-**Task:** Fill in Section 1! For this:
+**Task:** Fill in Section 1 - The Planning Section! For this:
 
 1.  click 'Reset all' do make sure it a clear new sheet
 
@@ -158,7 +163,7 @@ Export the Metadata-Sheet.
 
 ------------------------------------------------------------------------
 
-## Advanced usability
+## Basic Metadatasheet
 
 We have now worked through the most simplest case. The sheet is capable to capture more complicated set-ups. Some of those advanced settings are now introduced to you.
 
@@ -211,3 +216,41 @@ Whenever you select from the DropDown the option "CHANGES" the corresponding key
 3.  **Before** clicking generate think about, where you expect the key 'markers' to pop up again.
 4.  Click generate and check your expectation. Try to select several markers.
 5.  Can you think of other keys within the Sheet that would need the keyword CHANGES? Check if you can find it. If not please report the keys you would like to see the keyword CHANGES.
+
+## Sheet only
+The Metadatasheet was designed having YOU in mind. Maybe not you exactly, but more a user that is filling the sheet, with the least burden as possible. That's why user experience is a crucial part. However, you might not have access to an appropiate version of Excel to run or you might not have access to Excel at all.
+In those cases, you have two options:
+
+1. You have access to a spreadsheet software (with LibreOffice - everyone does) which is capable to open Excel Workbooks and might even be able to detect proposed data validation DropDowns
+
+2. You only have the option to open a single sheet - then you need to open two sheets at least: 'Input' and 'Validation'
+
+In either case you will need to prepare the final_groups and the Measurement-Matching table yourself, which will be the bottleneck for compability besides loosing user-experience features. Furthermore items need to be searched for yourself if part of controlled vocabulary and carfeully inserted.
+To make yourself aware the details should help you!
+
+### DIY controlled vocabulary usage
+If you do not have drop down menues you need to check yourself whether or not your requested item is part of the controlled vocabulary base. Hence you will need to search through the Validation Sheet. Every key is in the 6th row of that sheet:
+1. copy your key
+2. select the entire row six and pres Strg + F or CMD + F, and search for your copied item (paste it into the 'Find' Window)
+3. either scroll or search again for your value in the identfied column. Please take your time and make sure not to overlook a value.
+
+If your needed value is not present, you might want to add the your needed value. Make sure to provide the central hub (group, consortia) the updated Validation Sheet to minimise potential needed harmonization work from a central service.
+
+### DIY final groups - Section 2 Conducting
+
+
+### DIY Measurement Matching table - Section 3 Measurement Matching
+
+## Q&A 
+Note the tabs to check for the answer!
+
+### QA {.tabset .color-tabs .tabset-pills}
+#### asdasdf
+
+#### asdasd
+
+### QA2 {.tabset .color-tabs .tabset-pills}
+#### asdasdf
+
+#### asdasd
+
