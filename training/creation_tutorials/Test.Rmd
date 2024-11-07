@@ -236,21 +236,6 @@ If you do not have drop down menues you need to check yourself whether or not yo
 
 If your needed value is not present, you might want to add the your needed value. Make sure to provide the central hub (group, consortia) the updated Validation Sheet to minimise potential needed harmonization work from a central service.
 
-### DIY final groups - Section 2 Conducting
-
-
-### DIY Measurement Matching table - Section 3 Measurement Matching
-
 ## Q&A 
-Note the tabs to check for the answer!
-
-### QA {.tabset .color-tabs .tabset-pills}
-#### asdasdf
-
-#### asdasd
-
-### QA2 {.tabset .color-tabs .tabset-pills}
-#### asdasdf
-
-#### asdasd
+Please note the 'NOTE' sheet in the Metadatasheet workbook. Here you can find FAQs.
 
