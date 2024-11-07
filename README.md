@@ -12,6 +12,9 @@ Download the file Test.html and start from top - as Workbook you can work with t
 
 Moreover, within the MetadataWorkbook itself you can find loads of help within comments, help text, INFO Sheet and much more!
 
+Completed Sheets, to get an impression of the breath they cover, can be found here:
+https://zenodo.org/records/11088229
+
 Please, feel free to reach out if you got any questions, requests or observed a bug!
 
 ## Developer Notes
